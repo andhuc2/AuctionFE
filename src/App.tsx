@@ -9,12 +9,18 @@ import Users from "./pages/Users";
 import Unauthorize from "./pages/Unauthorize";
 import { LoadingProvider } from "./hooks/useLoading";
 import Profile from "./pages/Profile";
+import Register from "./pages/Register";
 
 // Define the route configuration
 const routeConfig = [
   {
     path: "/login",
     element: <Login />,
+    protected: false,
+  },
+  {
+    path: "/register",
+    element: <Register />,
     protected: false,
   },
   {

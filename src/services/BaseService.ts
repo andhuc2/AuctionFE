@@ -1,9 +1,8 @@
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { notification } from "antd";
 import { Messages } from "../utils/Constant";
-import useAuth from "../hooks/useAuth";
+import { API_URL } from "../utils/URLMapping";
 
-const API_URL = import.meta.env.VITE_API_URL as string || "http://localhost:5001";
 const axiosInstance = axios.create({
   baseURL: API_URL,
   // timeout: 10000, // Set timeout as needed
@@ -29,13 +28,12 @@ axiosInstance.interceptors.response.use(
   },
   (error) => {
     const status = error.response?.status;
-    
+
     if (status === 401) {
       notification.error({
         message: "Error",
         description: Messages.ERROR.UNAUTHENTICATED,
       });
-      const { logout } = useAuth();
       logout();
     } else if (status === 403) {
       notification.error({
@@ -83,7 +81,7 @@ const BaseService = {
       }
       return response.data;
     } catch (error) {
-      
+
     }
   },
 
@@ -164,5 +162,12 @@ const BaseService = {
     }
   },
 };
+
+function logout() {
+  localStorage.removeItem("user_permissions");
+  localStorage.removeItem("isAuthenticated");
+  localStorage.removeItem("token");
+  window.location.href = "/login";
+}
 
 export default BaseService;

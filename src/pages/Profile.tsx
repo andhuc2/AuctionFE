@@ -17,8 +17,11 @@ import {
 } from "antd";
 import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
 import BaseService from "../services/BaseService";
-import URLMapping from "../utils/URLMapping";
+import URLMapping, { API_URL } from "../utils/URLMapping";
 import { Messages } from "../utils/Constant";
+import { useLoading } from "../hooks/useLoading";
+import ItemCard from "../components/item/ItemCard";
+import dayjs from "dayjs";
 
 const Profile: React.FC = () => {
   const { logout } = useAuth();
@@ -27,24 +30,36 @@ const Profile: React.FC = () => {
   const [modalFunction, setModalFunction] = useState<"add" | "edit">("add");
   const [categories, setCategories] = useState<any>([]);
   const [form] = Form.useForm();
+  const { showLoading, hideLoading } = useLoading();
+  const [items, setItems] = useState<any>([]);
 
   useEffect(() => {
     (async () => {
+      showLoading();
       const categoryData = await BaseService.get(
         URLMapping.GET_ALL_CATEGORY,
         false
       );
-      setCategories(categoryData.data ?? []);
+      setCategories(categoryData?.data ?? []);
+      hideLoading();
     })();
+    loadData();
   }, []);
 
-  const handleFormSubmit = async (values: any) => {
-    const response = await BaseService.post(URLMapping.ADD_ITEM, values);
+  const loadData = async () => {
+    const itemData = await BaseService.get(URLMapping.GET_PERSON_ITEMS, false);
+    setItems(itemData?.data?.queryable ?? []);
+  };
 
+  const handleFormSubmit = async (values: any) => {
+    showLoading();
+    const response = await BaseService.post(URLMapping.ADD_ITEM, values);
     if (response && response.success) {
       setIsModalOpen(false);
       form.resetFields();
     }
+    await loadData();
+    hideLoading();
   };
 
   const handleUploadImage = async (options: any) => {
@@ -86,6 +101,22 @@ const Profile: React.FC = () => {
       >
         Add Item to Sell
       </Button>
+
+      <Row gutter={[16, 16]} style={{ paddingTop: "2rem" }}>
+        {items.map((item: any) => (
+          <Col xs={24} sm={12} md={8} lg={6} key={item.id}>
+            <ItemCard
+              id={item.id}
+              name={item.title}
+              description={item.description}
+              bidStart={item.bidStartDate}
+              bidEnd={item.bidEndDate}
+              image={API_URL + "/" + item.imagePath}
+              mode="edit"
+            />
+          </Col>
+        ))}
+      </Row>
 
       <Modal
         title="Add Item to Sell"

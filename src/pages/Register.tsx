@@ -9,40 +9,49 @@ import {
   notification,
 } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
 import BaseService from "../services/BaseService";
 import URLMapping from "../utils/URLMapping";
 import { Messages } from "../utils/Constant";
 
 const { Title, Paragraph } = Typography;
 
-const Login: React.FC = () => {
-  const { login } = useAuth();
+const Register: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const LOGO_URL = import.meta.env.VITE_LOGO_URL || "/logo.svg";
 
-  const onFinish = async (values: { email: string; password: string }) => {
+  const onFinish = async (values: { email: string; password: string; confirmPassword: string }) => {
     setLoading(true);
+    
+    // Ensure the passwords match
+    if (values.password !== values.confirmPassword) {
+      notification.error({
+        message: "Error",
+        description: "Passwords do not match!",
+      });
+      setLoading(false);
+      return;
+    }
+
     const response = await BaseService.post(
-      URLMapping.LOGIN,
+      URLMapping.REGISTER,
       {
         email: values.email,
         password: values.password,
       },
       false
     );
+
     if (response?.data) {
-      login(response.data);
+      navigate("/login");
       notification.success({
         message: "Success",
-        description: Messages.SUCCESS.AUTHENTICATED,
+        description: Messages.SUCCESS.SUCCESS,
       });
-      navigate("/home");
     } else {
       notification.error({
         message: "Error",
-        description: Messages.ERROR.UNAUTHENTICATED,
+        description: response?.message || Messages.ERROR.FAIL,
       });
     }
     setLoading(false);
@@ -81,17 +90,17 @@ const Login: React.FC = () => {
           />
         </div>
         <Title level={2} style={{ textAlign: "center" }}>
-          Login
+          Register
         </Title>
         <Form
-          name="login"
+          name="register"
           onFinish={onFinish}
           layout="vertical"
           style={{ marginTop: "24px" }}
         >
           <Form.Item
             name="email"
-            rules={[{ required: true, message: "Please input your username!" }]}
+            rules={[{ required: true, message: "Please input your email!" }]}
           >
             <Input placeholder="Email" />
           </Form.Item>
@@ -101,20 +110,23 @@ const Login: React.FC = () => {
           >
             <Input.Password placeholder="Password" />
           </Form.Item>
+          <Form.Item
+            name="confirmPassword"
+            rules={[{ required: true, message: "Please confirm your password!" }]}
+          >
+            <Input.Password placeholder="Confirm Password" />
+          </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit"  block loading={loading}>
-              Login
+            <Button type="primary" htmlType="submit" block loading={loading}>
+              Register
             </Button>
           </Form.Item>
         </Form>
-        <Space
-          direction="vertical"
-          style={{ width: "100%", textAlign: "center" }}
-        >
+        <Space direction="vertical" style={{ width: "100%", textAlign: "center" }}>
           <Paragraph>
-            Don't have account?{" "}
-            <Link to="/register" style={{ fontWeight: "bold" }}>
-              Register
+            Already have an account?{" "}
+            <Link to="/login" style={{ fontWeight: "bold" }}>
+              Login
             </Link>
           </Paragraph>
           <Paragraph>Copyright © 2024</Paragraph>
@@ -124,4 +136,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default Register;

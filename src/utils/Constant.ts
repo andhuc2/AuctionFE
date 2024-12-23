@@ -1,5 +1,6 @@
 export const Messages = {
   SUCCESS: {
+    SUCCESS: "Success!",
     DATA_FETCHED: "Get data successfully!",
     DATA_SAVED: "Data saved successfully!",
     DATA_UPDATED: "Data updated successfully!",
@@ -7,6 +8,7 @@ export const Messages = {
     AUTHENTICATED: "Authenticated successfully!",
   },
   ERROR: {
+    FAIL: "Failed!",
     REQUEST: "There was an error with your request.",
     RESPONSE: "An error occurred!",
     UNAUTHENTICATED: "Authentication failed!",
