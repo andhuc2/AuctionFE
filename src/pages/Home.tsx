@@ -54,7 +54,7 @@ const Home: React.FC = () => {
       ...prevItems,
       ...(itemData?.data?.queryable ?? []),
     ]);
-    setTotalPage(itemData?.data?.pageCount ?? 1);
+    setTotalPage(Math.max(itemData?.data?.pageCount ?? 1, 1));
     hideLoading();
   };
 
