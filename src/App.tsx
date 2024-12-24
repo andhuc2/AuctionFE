@@ -10,6 +10,7 @@ import Unauthorize from "./pages/Unauthorize";
 import { LoadingProvider } from "./hooks/useLoading";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
+import ItemDetails from "./pages/ItemDetails";
 
 // Define the route configuration
 const routeConfig = [
@@ -42,6 +43,16 @@ const routeConfig = [
     path: "/profile",
     element: <Profile />,
     protected: true,
+  },
+  {
+    path: "/items/:id",
+    element: <ItemDetails />,
+    protected: false,
+  },
+  {
+    path: "/items",
+    element: <Home />,
+    protected: false,
   }
 ];
 

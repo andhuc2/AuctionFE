@@ -2,6 +2,7 @@ import React from "react";
 import { Card, Button } from "antd";
 import { ClockCircleOutlined, DeleteOutlined, EditOutlined, SaveOutlined, ShopOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 const { Meta } = Card;
 
@@ -15,10 +16,14 @@ interface ItemCardProps {
   mode: "edit" | "view";
 }
 
-const ItemCard: React.FC<ItemCardProps> = ({ name, description, bidStart, bidEnd, image, mode = "view" }) => {
+const ItemCard: React.FC<ItemCardProps> = ({ id, name, description, bidStart, bidEnd, image, mode = "view" }) => {
+
+  const navigate = useNavigate();
+
   return (
     <Card
       hoverable
+      onClick={() => navigate(`/items/${id}`)}
       cover={<img alt={name} src={image} style={{ width: '100%', aspectRatio: 1}} />}
       actions={mode === "edit"
         ? [
