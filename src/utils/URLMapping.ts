@@ -10,6 +10,8 @@ const URLMapping = {
     UPDATE_ITEM: '/api/Item',
     GET_PERSON_ITEMS: '/api/Item/person',
     GET_ITEMS_HOME: '/api/Item/home',
+
+    POST_BID: '/api/Bid',
     
 };
 

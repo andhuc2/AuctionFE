@@ -45,6 +45,7 @@ const ItemDetails: React.FC = () => {
       false
     );
     setItem(response?.data ?? null);
+    setBids(response?.data?.bids ?? []);
     hideLoading();
   };
 
@@ -62,7 +63,20 @@ const ItemDetails: React.FC = () => {
       return;
     }
     showLoading();
-    // Simulate bid submission logic here
+    const response = await BaseService.post(URLMapping.POST_BID, {
+      itemId: id,
+      bidAmount: bidAmount,
+    });
+    if (response && response.success) {
+      setBidAmount(0);
+      setBiddingFormState(true);
+      await loadData();
+    } else {
+      notification.error({
+        message: "Failed to place bid",
+        description: response?.message || "Please try again later.",
+      });
+    }
     hideLoading();
   };
 
@@ -162,18 +176,18 @@ const ItemDetails: React.FC = () => {
             columns={[
               {
                 title: "Bidder",
-                dataIndex: "bidder",
+                dataIndex: ["bidder", "fullName"],
                 key: "bidder",
               },
               {
                 title: "Amount",
-                dataIndex: "amount",
+                dataIndex: "bidAmount",
                 key: "amount",
-                render: (amount) => `$${amount.toFixed(2)}`,
+                render: (bidAmount) => `$${bidAmount.toFixed(2)}`,
               },
               {
                 title: "Time",
-                dataIndex: "time",
+                dataIndex: "bidDate",
                 key: "time",
                 render: (time) => new Date(time).toLocaleString(),
               },
