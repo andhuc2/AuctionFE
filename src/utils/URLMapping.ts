@@ -11,6 +11,15 @@ const URLMapping = {
     GET_PERSON_ITEMS: '/api/Item/person',
     GET_ITEMS_HOME: '/api/Item/home',
 
+    GET_USER: '/api/User',
+    DELETE_USER: '/api/User',
+    UPDATE_USER: '/api/User',
+
+    GET_CATEGORY: '/api/Category',
+    ADD_CATEGORY: '/api/Category',
+    UPDATE_CATEGORY: '/api/Category',
+    DELETE_CATEGORY: '/api/Category',
+
     POST_BID: '/api/Bid',
     
 };

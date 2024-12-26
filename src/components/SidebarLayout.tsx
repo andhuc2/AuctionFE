@@ -11,6 +11,7 @@ import {
   ArrowLeftOutlined,
   StarOutlined,
   LoginOutlined,
+  AppstoreOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Breadcrumb, theme, Button, Space, Dropdown } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -29,21 +30,14 @@ const menuItems = [
     icon: <HomeOutlined />,
     path: "/home",
     permission: PermissionMapping.NONE,
-  },
-  // {
-  //   label: "User",
-  //   key: "users",
-  //   icon: <UserOutlined />,
-  //   path: "/users",
-  //   permission: PermissionMapping.VIEW_USER,
-  // },
+  }
 ];
 
 const SidebarLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { hasPermission } = usePermissions();
-  const { logout, isAuthenticated } = useAuth();
+  const { logout, isAuthenticated, isAdmin } = useAuth();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(
     localStorage.getItem("collapsed") === "true"
@@ -53,6 +47,25 @@ const SidebarLayout: React.FC<{ children: React.ReactNode }> = ({
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   const navigate = useNavigate();
+
+  if (isAdmin() && !menuItems.some(item => item.key === "users")) {
+    menuItems.push({
+      label: "Users",
+      key: "users",
+      icon: <UserOutlined />,
+      path: "/users",
+      permission: PermissionMapping.VIEW_USER,
+    })
+  }
+  if (isAdmin() && !menuItems.some(item => item.key === "categories")) {
+    menuItems.push({
+      label: "Categories",
+      key: "categories",
+      icon: <AppstoreOutlined />,
+      path: "/categories",
+      permission: PermissionMapping.VIEW_USER,
+    })
+  }
 
   return (
     <Layout style={{ minHeight: "100vh", width: "100%" }}>

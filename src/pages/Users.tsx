@@ -1,106 +1,117 @@
 import React, { useEffect, useState } from "react";
 import {
-  UserOutlined,
-  MailOutlined,
-  TrophyOutlined,
-  TeamOutlined,
-  StarOutlined,
-  GoldOutlined,
-  ReloadOutlined,
-  EditOutlined,
-  InfoCircleOutlined,
-} from "@ant-design/icons";
-import {
   Button,
   Table,
   Space,
-  Tag,
-  Pagination,
-  GetProps,
   Input,
   Modal,
+  Form,
   Row,
   Col,
-  Switch,
   notification,
-  Form,
+  Tag,
+  Select,
 } from "antd";
+import {
+  EditOutlined,
+  InfoCircleOutlined,
+  ReloadOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import SidebarLayout from "../components/SidebarLayout";
 import BaseService from "../services/BaseService";
 import URLMapping from "../utils/URLMapping";
-import { useLoading } from "../hooks/useLoading";
-import { SearchProps } from "antd/es/input";
-import { Messages } from "../utils/Constant";
-import Search from "antd/es/input/Search";
-import usePermissions from "../hooks/usePermissions";
-import PermissionMapping from "../utils/PermissionMapping";
 
 interface User {
-  id: string;
-  userId: string;
-  email: string;
+  id: number;
   username: string;
-  nickname: string;
+  email: string;
+  fullName: string;
+  phone: string;
+  address: string;
+  role: number;
+  isDeleted: boolean;
 }
 
 const Users: React.FC = () => {
-  const navigate = useNavigate();
-  const [data, setData] = useState<User[]>([]);
-  const [pageSize, setPageSize] = useState(10);
+  const [users, setUsers] = useState<User[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
-  const { showLoading, hideLoading } = useLoading();
+  const [pageSize, setPageSize] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
   const [searchText, setSearchText] = useState<string>("");
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  // const [editingUser, setEditingUser] = useState<any>(null);
-  const [editingPlayer, setEditingPlayer] = useState<any>(null);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
   const [form] = Form.useForm();
-  const { hasPermission } = usePermissions();
-
-  useEffect(() => {
-    showLoading();
-    setCurrentPage(1);
-  }, []);
 
   useEffect(() => {
     loadData();
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, searchText]);
 
   const loadData = async () => {
-    showLoading();
-
-    const url = searchText
-      ? URLMapping.SEARCH_PLAYER
-      : URLMapping.GET_ALL_PLAYER;
-
-    const response = await BaseService.get(
-      url +
-        `?PageNumber=${currentPage}&PageSize=${pageSize}&input=${searchText}`,
-      false
-    );
-
-    hideLoading();
-    setData(response.data);
-    setTotalCount(response.totalCount);
+    try {
+      const response = await BaseService.get(
+        `${URLMapping.GET_USER}?page=${currentPage}&size=${pageSize}&search=${searchText}`,
+        false
+      );
+      setUsers(response.data.queryable);
+      setTotalItems(response.data.rowCount);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  // Define the columns for the Ant Design table
+  const handleEdit = (user: User) => {
+    setEditingUser(user);
+    form.setFieldsValue(user);
+    setIsEditModalVisible(true);
+  };
+
+  const handleUpdate = async () => {
+    const updatedUser = { ...editingUser, ...form.getFieldsValue() };
+    const response = await BaseService.put(URLMapping.UPDATE_USER, updatedUser);
+    if (response && response.success) {
+      setIsEditModalVisible(false);
+      loadData();
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    Modal.confirm({
+      title: "Are you sure you want to delete this user?",
+      content: "This action cannot be undone.",
+      okText: "Yes, Delete",
+      cancelText: "Cancel",
+      onOk: async () => {
+        await BaseService.delete(URLMapping.DELETE_USER + `/${id}`);
+        loadData();
+      },
+    });
+  };
+
   const columns = [
+    { title: "ID", dataIndex: "id", key: "id" },
+    { title: "Username", dataIndex: "username", key: "username" },
+    { title: "Email", dataIndex: "email", key: "email" },
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
+      title: "Role",
+      dataIndex: "role",
+      key: "role",
+      render: (role: number) => {
+        let color = role === 1 ? "warning" : "green";
+        let label = role === 1 ? "ADMIN" : "USER";
+        return <Tag color={color}>{label}</Tag>;
+      },
     },
     {
-      title: "Username",
-      dataIndex: "username",
-      key: "username",
-    },
-    {
-      title: "Nickname",
-      dataIndex: "nickname",
-      key: "nickname",
+      title: "Status",
+      dataIndex: "isDeleted",
+      key: "isDeleted",
+      render: (isDeleted: boolean) => (
+        <Tag color={isDeleted ? "red" : "blue"}>
+          {isDeleted ? "DELETED" : "ACTIVE"}
+        </Tag>
+      ),
     },
     {
       title: "Action",
@@ -108,376 +119,89 @@ const Users: React.FC = () => {
       render: (_: any, record: User) => (
         <Space size="middle">
           <Button
-            color="default"
-            variant="text"
-            onClick={() => handleInfo(record.id)}
-            icon={<InfoCircleOutlined />}
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(record)}
+            title="Edit"
           ></Button>
-          {hasPermission(PermissionMapping.EDIT_USER) && (
+          {!record.isDeleted && record.role != 1 && (
             <Button
-              color="default"
-              variant="text"
-              onClick={() => handleEdit(record.id)}
-              icon={<EditOutlined />}
+              icon={<DeleteOutlined />}
+              danger
+              onClick={() => handleDelete(record.id)}
+              title="Delete"
             ></Button>
           )}
-          {/* <Button onClick={() => handleEdit(record.id)}>Edit</Button>
-          <Button danger onClick={() => handleDelete(record.id)}>
-            Delete
-          </Button> */}
         </Space>
       ),
     },
   ];
 
-  // Function to handle delete action
-  const handleDelete = async (id: string) => {
-    // Implement the delete functionality here
-    loadData();
-  };
-
-  const handleEdit = async (id: string) => {
-    try {
-      const player = await BaseService.get(
-        URLMapping.GET_PLAYER + `?playerId=${id}`,
-        false
-      );
-      const user = await BaseService.get(
-        URLMapping.GET_USER + `?playerId=${id}`,
-        false
-      );
-
-      // setEditingUser(user);
-      setEditingPlayer(player);
-      setIsEditModalVisible(true);
-
-      // Set form values
-      form.setFieldsValue({
-        username: user.userName,
-        email: user.email,
-        walletAddress: user.walletAddress,
-        emailConfirmed: user.emailConfirmed,
-        level: player.level,
-        exp: player.exp,
-        trophy: player.trophy,
-        win: player.win,
-        totalGames: player.totalGames,
-        winStreakCurrent: player.winStreakCurrent,
-        winStreak: player.winStreak,
-        mvp: player.mvp,
-      });
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  };
-
-  const handleUpdate = async () => {
-    try {
-      const values = await form.validateFields();
-      showLoading();
-
-      // Update User
-      // const responseUser = await BaseService.put(
-      //   URLMapping.UPDATE_USER,
-      //   { ...editingUser, ...values },
-      //   false
-      // );
-      // Update Player
-      const responsePlayer = await BaseService.put(
-        URLMapping.UPDATE_PLAYER,
-        { ...editingPlayer, ...values },
-        false
-      );
-
-      // if (responsePlayer.errors || responseUser.errors) {
-      if (responsePlayer.errors) {
-        notification.error({
-          message: "Error",
-          description: Messages.ERROR.REQUEST,
-        });
-      } else {
-        notification.success({
-          message: "Success",
-          description: Messages.SUCCESS.DATA_UPDATED,
-        });
-
-        setIsEditModalVisible(false);
-        loadData();
-      }
-    } catch (error) {
-      console.error("Error updating user data:", error);
-    } finally {
-      hideLoading();
-    }
-  };
-
-  const handleInfo = async (id: string) => {
-    const player = await BaseService.get(
-      URLMapping.GET_PLAYER + `?playerId=${id}`,
-      false
-    );
-    const user = await BaseService.get(
-      URLMapping.GET_USER + `?playerId=${id}`,
-      false
-    );
-    Modal.info({
-      style: { minWidth: 800 },
-      title: "User Info",
-      content: (
-        <div style={{ padding: "10px" }}>
-          <Row gutter={[16, 16]}>
-            {/* First Column */}
-            <Col span={12}>
-              <div
-                style={{
-                  marginBottom: "15px",
-                  paddingBottom: "10px",
-                }}
-              >
-                <p>
-                  <UserOutlined /> <b>Username:</b> {user.userName}
-                </p>
-                <p>
-                  <UserOutlined /> <b>Nickname:</b> {player.nickname}
-                </p>
-                <p>
-                  <MailOutlined /> <b>Email:</b> {user.email}
-                </p>
-                <p>
-                  <UserOutlined /> <b>UserId:</b> {player.userId}
-                </p>
-              </div>
-              <div
-                style={{
-                  marginBottom: "15px",
-                  paddingBottom: "10px",
-                }}
-              >
-                <p>
-                  <UserOutlined /> <b>Wallet Address:</b>{" "}
-                  {player.walletAddress || "N/A"}
-                </p>
-                <p>
-                  <GoldOutlined /> <b>Level:</b> {player.level}
-                </p>
-                <p>
-                  <GoldOutlined /> <b>Experience (EXP):</b> {player.exp}
-                </p>
-              </div>
-            </Col>
-
-            {/* Second Column */}
-            <Col span={12}>
-              <div
-                style={{
-                  marginBottom: "15px",
-                  paddingBottom: "10px",
-                }}
-              >
-                <p>
-                  <TrophyOutlined /> <b>Trophy:</b> {player.trophy}
-                </p>
-                <p>
-                  <TeamOutlined /> <b>Wins:</b> {player.win}
-                </p>
-                <p>
-                  <TeamOutlined /> <b>Total Games:</b> {player.totalGames}
-                </p>
-                <p>
-                  <StarOutlined /> <b>Current Win Streak:</b>{" "}
-                  {player.winStreakCurrent}
-                </p>
-                <p>
-                  <StarOutlined /> <b>Highest Win Streak:</b> {player.winStreak}
-                </p>
-                <p>
-                  <StarOutlined /> <b>MVP Count:</b> {player.mvp}
-                </p>
-              </div>
-              <div></div>
-            </Col>
-          </Row>
-        </div>
-      ),
-      onOk() {},
-    });
-  };
-
-  const handleReset = async () => {
-    setSearchText("");
-    setCurrentPage(1);
-  };
-
-  const handleSearch: SearchProps["onSearch"] = (value, _e, info) => {
-    loadData();
-  };
-
-  const renderEditModal = () => (
-    <Modal
-      title="Edit User"
-      visible={isEditModalVisible}
-      okText="Update"
-      onOk={handleUpdate}
-      onCancel={() => {
-        setIsEditModalVisible(false);
-        // setEditingUser(null);
-        setEditingPlayer(null);
-      }}
-      style={{ minWidth: 800 }}
-    >
-      <Form form={form} layout="vertical">
-        <Row gutter={30}>
-          <Col span={12}>
-            <h3>User Information</h3>
-            <Form.Item
-              label="Username"
-              name="username"
-              rules={[{ required: true, message: "Input username!" }]}
-            >
-              <Input disabled />
-            </Form.Item>
-            <Form.Item
-              label="Email"
-              name="email"
-              rules={[
-                { required: true, message: "Input email!" },
-                { type: "email", message: "Invalid E-mail!" },
-              ]}
-            >
-              <Input disabled />
-            </Form.Item>
-            <Form.Item label="Wallet Address" name="walletAddress">
-              <Input disabled />
-            </Form.Item>
-            <Form.Item
-              label="Email Confirmed"
-              name="emailConfirmed"
-              valuePropName="checked"
-            >
-              <Switch disabled />
-            </Form.Item>
-          </Col>
-
-          <Col span={12}>
-            <h3>Player Information</h3>
-            <Form.Item
-              label="Level"
-              name="level"
-              rules={[{ required: true, message: "Input level!" }]}
-            >
-              <Input type="number" />
-            </Form.Item>
-            <Form.Item
-              label="Experience (EXP)"
-              name="exp"
-              rules={[{ required: true, message: "Input experience!" }]}
-            >
-              <Input type="number" />
-            </Form.Item>
-            <Form.Item
-              label="Trophy"
-              name="trophy"
-              rules={[{ required: true, message: "Input trophy!" }]}
-            >
-              <Input type="number" />
-            </Form.Item>
-            <Form.Item
-              label="Wins"
-              name="win"
-              rules={[{ required: true, message: "Input wins!" }]}
-            >
-              <Input type="number" />
-            </Form.Item>
-            <Form.Item
-              label="Total Games"
-              name="totalGames"
-              rules={[{ required: true, message: "Input total games!" }]}
-            >
-              <Input type="number" />
-            </Form.Item>
-            <Form.Item
-              label="Current Win Streak"
-              name="winStreakCurrent"
-              rules={[{ required: true, message: "Input current streak!" }]}
-            >
-              <Input type="number" />
-            </Form.Item>
-            <Form.Item
-              label="Highest Win Streak"
-              name="winStreak"
-              rules={[{ required: true, message: "Input highest streak!" }]}
-            >
-              <Input type="number" />
-            </Form.Item>
-            <Form.Item
-              label="MVP Count"
-              name="mvp"
-              rules={[{ required: true, message: "Input MVP count!" }]}
-            >
-              <Input type="number" />
-            </Form.Item>
-          </Col>
-        </Row>
-      </Form>
-    </Modal>
-  );
-
   return (
     <SidebarLayout>
       <h2>Users</h2>
-      <div style={{ width: "100%", textAlign: "end" }}>
-        <Search
-          placeholder="Input search text"
-          onSearch={handleSearch}
-          enterButton
-          style={{ maxWidth: 300, marginBottom: 20 }}
-          onChange={(e) => setSearchText(e.target.value)}
-          value={searchText}
-        />
-        <Button
-          onClick={handleReset}
-          icon={<ReloadOutlined />}
-          style={{
-            marginLeft: "10px",
-          }}
-        ></Button>
-      </div>
+      <Input.Search
+        placeholder="Search users"
+        onSearch={(value) => setSearchText(value)}
+        style={{ marginBottom: 16, width: 300 }}
+      />
+      <Button
+        icon={<ReloadOutlined />}
+        onClick={() => loadData()}
+        style={{ marginBottom: 16, marginLeft: "1rem" }}
+      ></Button>
       <Table
-        style={{ minHeight: "60vh" }}
-        dataSource={data}
         columns={columns}
+        dataSource={users}
         rowKey="id"
         pagination={{
           current: currentPage,
-          pageSize: pageSize,
-          total: totalCount,
-          onChange: (page, pageSize) => {
-            setPageSize(pageSize);
+          pageSize,
+          total: totalItems,
+          onChange: (page, size) => {
             setCurrentPage(page);
+            setPageSize(size || 10);
           },
-          position: ["bottomRight"],
         }}
       />
-      {/* <div
-        style={{
-          width: "100%",
-          flexDirection: "row-reverse",
-          display: "flex",
-          marginTop: "20px",
-          paddingRight: "40px",
-        }}
+      <Modal
+        title="Edit User"
+        visible={isEditModalVisible}
+        onOk={handleUpdate}
+        onCancel={() => setIsEditModalVisible(false)}
       >
-        <Pagination
-          current={currentPage}
-          pageSize={pageSize}
-          total={totalCount}
-          onChange={(page, pageSize) => {
-            setCurrentPage(page);
-            setPageSize(pageSize);
-          }}
-        ></Pagination>
-      </div> */}
-      {renderEditModal()}
+        <Form form={form} layout="vertical">
+          <Form.Item
+            name="username"
+            label="Username"
+            rules={[{ required: true }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="email"
+            label="Email"
+            rules={[{ required: true, type: "email" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item name="role" label="Role" rules={[{ required: true }]}>
+            <Select>
+              <Select.Option value={1}>Admin</Select.Option>
+              <Select.Option value={0}>User</Select.Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="isDeleted"
+            label="Status"
+            rules={[{ required: true }]}
+          >
+            <Select>
+              <Select.Option value={false}>Active</Select.Option>
+              <Select.Option value={true}>Deleted</Select.Option>
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
     </SidebarLayout>
   );
 };
