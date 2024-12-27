@@ -118,6 +118,9 @@ const ItemDetails: React.FC = () => {
               <Descriptions.Item label="Starting Price">
                 <Text>${item?.minimumBid || "0"}</Text>
               </Descriptions.Item>
+              <Descriptions.Item label="Bid Increment">
+                <Text>${item?.bidIncrement || "0"}</Text>
+              </Descriptions.Item>
               <Descriptions.Item label="Bid Timeframe">
                 {dayjs(item?.bidStartDate).format("HH:mm DD/MM/YYYY")} -{" "}
                 {dayjs(item?.bidEndDate).format("HH:mm DD/MM/YYYY")}

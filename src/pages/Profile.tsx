@@ -32,6 +32,7 @@ const Profile: React.FC = () => {
   const [form] = Form.useForm();
   const { showLoading, hideLoading } = useLoading();
   const [items, setItems] = useState<any>([]);
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -53,12 +54,32 @@ const Profile: React.FC = () => {
 
   const handleFormSubmit = async (values: any) => {
     showLoading();
-    const response = await BaseService.post(URLMapping.ADD_ITEM, values);
-    if (response && response.success) {
-      setIsModalOpen(false);
-      form.resetFields();
+    if (modalFunction === "add") {
+      const response = await BaseService.post(URLMapping.ADD_ITEM, values);
+      if (response && response.success) {
+        setIsModalOpen(false);
+        form.resetFields();
+      } else {
+        notification.error({
+          message: Messages.ERROR.FAIL,
+          description: response.message,
+        });
+      }
+      await loadData();
+    } else {
+      values.id = selectedItemId;
+      const response = await BaseService.put(URLMapping.UPDATE_ITEM, values);
+      if (response && response.success) {
+        setIsModalOpen(false);
+        form.resetFields();
+      } else {
+        notification.error({
+          message: Messages.ERROR.FAIL,
+          description: response.message,
+        });
+      }
+      await loadData();
     }
-    await loadData();
     hideLoading();
   };
 
@@ -88,6 +109,23 @@ const Profile: React.FC = () => {
     } catch (error) {}
   };
 
+  const handleEdit = (item: any) => {
+    setModalFunction("edit");
+    setIsModalOpen(true);
+    setSelectedItemId(item.id);
+
+    form.setFieldsValue({
+      title: item.title,
+      minimumBid: item.minimumBid,
+      bidStartDate: dayjs(item.bidStartDate),
+      bidEndDate: dayjs(item.bidEndDate),
+      description: item.description,
+      categoryId: item.categoryId,
+      imagePath: item.imagePath,
+      documentPath: item.documentPath,
+    });
+  };
+
   return (
     <SidebarLayout>
       <h1>Profile</h1>
@@ -113,6 +151,8 @@ const Profile: React.FC = () => {
               bidEnd={item.bidEndDate}
               image={API_URL + "/" + item.imagePath}
               mode="edit"
+              loadData={loadData}
+              handleEdit={() => handleEdit(item)}
             />
           </Col>
         ))}
@@ -137,6 +177,24 @@ const Profile: React.FC = () => {
                 <Input />
               </Form.Item>
               <Form.Item
+                name="categoryId"
+                label="Category"
+                rules={[
+                  { required: true, message: "Please select a category!" },
+                ]}
+              >
+                <Select
+                  placeholder="Select a category"
+                  style={{ width: "100%" }}
+                >
+                  {categories.map((category: any) => (
+                    <Select.Option key={category.id} value={category.id}>
+                      {category.categoryName}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+              <Form.Item
                 name="minimumBid"
                 label="Minimum Bid"
                 rules={[
@@ -144,6 +202,31 @@ const Profile: React.FC = () => {
                 ]}
               >
                 <InputNumber style={{ width: "100%" }} min={0} step={0.01} />
+              </Form.Item>
+              <Form.Item
+                name="bidIncrement"
+                label="Bid Increment"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter the bid increment!",
+                  },
+                ]}
+              >
+                <InputNumber style={{ width: "100%" }} min={0} />
+              </Form.Item>
+            </Col>
+
+            {/* Right Column */}
+            <Col span={12}>
+              <Form.Item
+                name="description"
+                label="Description"
+                rules={[
+                  { required: true, message: "Please enter a description!" },
+                ]}
+              >
+                <Input.TextArea rows={4} />
               </Form.Item>
               <Form.Item
                 name="bidStartDate"
@@ -162,37 +245,6 @@ const Profile: React.FC = () => {
                 ]}
               >
                 <DatePicker showTime style={{ width: "100%" }} />
-              </Form.Item>
-            </Col>
-
-            {/* Right Column */}
-            <Col span={12}>
-              <Form.Item
-                name="description"
-                label="Description"
-                rules={[
-                  { required: true, message: "Please enter a description!" },
-                ]}
-              >
-                <Input.TextArea rows={4} />
-              </Form.Item>
-              <Form.Item
-                name="categoryId"
-                label="Category"
-                rules={[
-                  { required: true, message: "Please select a category!" },
-                ]}
-              >
-                <Select
-                  placeholder="Select a category"
-                  style={{ width: "100%" }}
-                >
-                  {categories.map((category: any) => (
-                    <Select.Option key={category.id} value={category.id}>
-                      {category.categoryName}
-                    </Select.Option>
-                  ))}
-                </Select>
               </Form.Item>
             </Col>
           </Row>

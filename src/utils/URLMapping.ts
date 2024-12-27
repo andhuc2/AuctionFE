@@ -8,6 +8,7 @@ const URLMapping = {
     GET_ITEMS: '/api/Item',
     ADD_ITEM: '/api/Item',
     UPDATE_ITEM: '/api/Item',
+    DELETE_ITEM: '/api/Item',
     GET_PERSON_ITEMS: '/api/Item/person',
     GET_ITEMS_HOME: '/api/Item/home',
 

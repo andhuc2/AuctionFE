@@ -40,6 +40,7 @@ axiosInstance.interceptors.response.use(
         message: "Error",
         description: Messages.ERROR.UNAUTHORIZED,
       });
+      window.location.href = "/403";
     } else if (status === 404) {
       notification.error({
         message: "Error",
