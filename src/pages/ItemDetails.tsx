@@ -12,22 +12,30 @@ import {
   notification,
   Descriptions,
   Card,
+  Modal,
+  Rate,
 } from "antd";
 import URLMapping, { API_URL } from "../utils/URLMapping";
 import BaseService from "../services/BaseService";
 import { useLoading } from "../hooks/useLoading";
 import dayjs from "dayjs";
-import { DollarOutlined } from "@ant-design/icons";
+import { DollarOutlined, StarOutlined } from "@ant-design/icons";
+import useAuth from "../hooks/useAuth";
+import { Messages } from "../utils/Constant";
 
 const { Title, Text } = Typography;
 
 const ItemDetails: React.FC = () => {
+  const { getUserId } = useAuth();
   const { id } = useParams<{ id: string }>();
   const [item, setItem] = useState<any>(null);
   const [bids, setBids] = useState<any[]>([]);
   const [bidAmount, setBidAmount] = useState<number>(0);
   const { showLoading, hideLoading } = useLoading();
   const [biddingFormState, setBiddingFormState] = useState<boolean>(true);
+  const [isRateModalVisible, setIsRateModalVisible] = useState<boolean>(false);
+  const [ratingValue, setRatingValue] = useState<number>(0);
+  const [currentBidderId, setCurrentBidderId] = useState<number>(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -76,6 +84,44 @@ const ItemDetails: React.FC = () => {
         message: "Failed to place bid",
         description: response?.message || "Please try again later.",
       });
+    }
+    hideLoading();
+  };
+
+  const handleRate = async () => {
+    if (ratingValue <= 0 || ratingValue > 5) {
+      notification.error({
+        message: "Invalid Rating",
+        description: "Please enter a rating between 1 and 5.",
+      });
+      return;
+    }
+
+    showLoading();
+    const response = await BaseService.post(URLMapping.POST_RATING, {
+      rateeId: currentBidderId,
+      itemId: item.id,
+      ratingValue: ratingValue,
+    });
+    if (response && !response.success) {
+      notification.error({
+        message: Messages.ERROR.FAIL,
+        description: response.message,
+      });
+    }
+    hideLoading();
+    setIsRateModalVisible(false);
+    setRatingValue(0);
+  };
+
+  const loadRating = async (userId: number) => {
+    showLoading();
+    const response = await BaseService.get(
+      URLMapping.GET_RATING + `/${userId}/${item.id}`,
+      false
+    );
+    if (response && response.success) {
+      setRatingValue(response.data.ratingValue);
     }
     hideLoading();
   };
@@ -194,12 +240,51 @@ const ItemDetails: React.FC = () => {
                 key: "time",
                 render: (time) => new Date(time).toLocaleString(),
               },
+              ...(getUserId() === item?.sellerId
+                ? [
+                    {
+                      title: "Actions",
+                      key: "actions",
+                      render: (_: any, record: any) => (
+                        <Button
+                          type="link"
+                          icon={<StarOutlined />}
+                          onClick={async () => {
+                            await loadRating(record.bidder.id);
+                            setIsRateModalVisible(true);
+                            setCurrentBidderId(record.bidder.id);
+                          }}
+                        >
+                          Rate
+                        </Button>
+                      ),
+                    },
+                  ]
+                : []),
             ]}
             pagination={{ pageSize: 50 }}
             rowKey={(record) => record.id}
           />
         </Col>
       </Row>
+
+      <Modal
+        title="Rate Bidder"
+        visible={isRateModalVisible}
+        onOk={handleRate}
+        onCancel={() => setIsRateModalVisible(false)}
+        okText="Submit"
+        cancelText="Cancel"
+      >
+        <div style={{ textAlign: "center" }}>
+          <Text strong>Rate this bidder:</Text>
+          <Rate
+            value={ratingValue}
+            onChange={(value) => setRatingValue(value)}
+            style={{ marginTop: "10px" }}
+          />
+        </div>
+      </Modal>
     </SidebarLayout>
   );
 };

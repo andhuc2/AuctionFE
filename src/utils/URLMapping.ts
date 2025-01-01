@@ -23,6 +23,8 @@ const URLMapping = {
 
     POST_BID: '/api/Bid',
     
+    POST_RATING: '/api/Rating',
+    GET_RATING: '/api/Rating',
 };
 
 export default URLMapping;

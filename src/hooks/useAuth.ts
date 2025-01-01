@@ -41,6 +41,16 @@ const useAuth = () => {
     }
   };
 
+  const getUserId = () => {
+    try {
+      const payloadBase64 = token.split('.')[1];
+      const payloadDecoded = JSON.parse(atob(payloadBase64));
+      return payloadDecoded.id;
+    } catch (error) {
+      return 0;
+    }
+  }
+
   // Ensure to sync state with localStorage on initial render
   useEffect(() => {
     const authenticated = localStorage.getItem("isAuthenticated") === "true";
@@ -49,7 +59,7 @@ const useAuth = () => {
     setToken(token);
   }, []);
 
-  return { isAuthenticated, token, login, logout, isAdmin };
+  return { isAuthenticated, token, login, logout, isAdmin, getUserId };
 };
 
 export default useAuth;
