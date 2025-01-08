@@ -15,6 +15,7 @@ const URLMapping = {
     GET_USER: '/api/User',
     DELETE_USER: '/api/User',
     UPDATE_USER: '/api/User',
+    PROFILE_USER: '/api/User/profile',
 
     GET_CATEGORY: '/api/Category',
     ADD_CATEGORY: '/api/Category',

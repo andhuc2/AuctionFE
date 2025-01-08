@@ -4,8 +4,10 @@ import { useNavigate } from "react-router-dom";
 import SidebarLayout from "../components/SidebarLayout";
 import {
   Button,
+  Card,
   Col,
   DatePicker,
+  Descriptions,
   Form,
   Input,
   InputNumber,
@@ -33,6 +35,8 @@ const Profile: React.FC = () => {
   const { showLoading, hideLoading } = useLoading();
   const [items, setItems] = useState<any>([]);
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const { getUserId } = useAuth();
 
   useEffect(() => {
     (async () => {
@@ -42,6 +46,12 @@ const Profile: React.FC = () => {
         false
       );
       setCategories(categoryData?.data ?? []);
+
+      const userData = await BaseService.get(
+        URLMapping.PROFILE_USER + `/${getUserId()}`,
+        false
+      );
+      setUser(userData?.data ?? null);
       hideLoading();
     })();
     loadData();
@@ -129,6 +139,29 @@ const Profile: React.FC = () => {
   return (
     <SidebarLayout>
       <h1>Profile</h1>
+
+      {user && (
+        <div style={{ marginBottom: "2rem" }}>
+          <Card title="User Details" bordered>
+            <Descriptions column={1} bordered>
+              <Descriptions.Item label="Full Name">
+                {user.fullName || "N/A"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Email">{user.email}</Descriptions.Item>
+              <Descriptions.Item label="Role">
+                {user.role === 1 ? "Admin" : "User"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Items Sold">
+                {user.items?.length || 0}
+              </Descriptions.Item>
+              <Descriptions.Item label="Bids Made">
+                {user.bids?.length || 0}
+              </Descriptions.Item>
+            </Descriptions>
+          </Card>
+        </div>
+      )}
+
       <Button
         type="primary"
         icon={<PlusOutlined />}
