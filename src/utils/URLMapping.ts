@@ -2,6 +2,7 @@ const URLMapping = {
     
     LOGIN: '/api/Authen/Login',
     REGISTER: '/api/Authen/Register',
+    VEFIRY: '/api/Authen/Verify',
 
     GET_ALL_CATEGORY: '/api/Category/all',
 

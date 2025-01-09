@@ -12,6 +12,7 @@ import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import ItemDetails from "./pages/ItemDetails";
 import Categories from "./pages/Categories";
+import Verify from "./pages/Verify";
 
 // Define the route configuration
 const routeConfig = [
@@ -23,6 +24,11 @@ const routeConfig = [
   {
     path: "/register",
     element: <Register />,
+    protected: false,
+  },
+  {
+    path: "/verify",
+    element: <Verify />,
     protected: false,
   },
   {

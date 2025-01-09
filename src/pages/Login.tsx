@@ -29,20 +29,15 @@ const Login: React.FC = () => {
       {
         email: values.email,
         password: values.password,
-      },
-      false
+      }
     );
     if (response?.data) {
       login(response.data);
-      notification.success({
-        message: "Success",
-        description: Messages.SUCCESS.AUTHENTICATED,
-      });
       navigate("/home");
     } else {
       notification.error({
         message: "Error",
-        description: Messages.ERROR.UNAUTHENTICATED,
+        description: response?.message || Messages.ERROR.UNAUTHENTICATED,
       });
     }
     setLoading(false);
@@ -117,7 +112,7 @@ const Login: React.FC = () => {
               Register
             </Link>
           </Paragraph>
-          <Paragraph>Copyright © 2024</Paragraph>
+          <Paragraph>Copyright © 2025</Paragraph>
         </Space>
       </div>
     </div>

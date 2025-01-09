@@ -184,6 +184,9 @@ const ItemDetails: React.FC = () => {
                   </Button>
                 </Descriptions.Item>
               )}
+              <Descriptions.Item label="Seller">
+                <Text>{item?.seller?.username || "N/A"}</Text>
+              </Descriptions.Item>
             </Descriptions>
           </div>
         </Col>
