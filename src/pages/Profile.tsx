@@ -17,7 +17,11 @@ import {
   Select,
   Upload,
 } from "antd";
-import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  DollarOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import BaseService from "../services/BaseService";
 import URLMapping, { API_URL } from "../utils/URLMapping";
 import { Messages } from "../utils/Constant";
@@ -37,6 +41,8 @@ const Profile: React.FC = () => {
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
   const [user, setUser] = useState<any>(null);
   const { getUserId } = useAuth();
+  const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
+  const [rechargeForm] = Form.useForm();
 
   useEffect(() => {
     (async () => {
@@ -69,6 +75,7 @@ const Profile: React.FC = () => {
       if (response && response.success) {
         setIsModalOpen(false);
         form.resetFields();
+        user.credit -= 5000;
       } else {
         notification.error({
           message: Messages.ERROR.FAIL,
@@ -127,6 +134,7 @@ const Profile: React.FC = () => {
     form.setFieldsValue({
       title: item.title,
       minimumBid: item.minimumBid,
+      bidIncrement: item.bidIncrement,
       bidStartDate: dayjs(item.bidStartDate),
       bidEndDate: dayjs(item.bidEndDate),
       description: item.description,
@@ -134,6 +142,37 @@ const Profile: React.FC = () => {
       imagePath: item.imagePath,
       documentPath: item.documentPath,
     });
+  };
+
+  const handleRechargeSubmit = async (values: any) => {
+    showLoading();
+    try {
+      const response = await BaseService.post(
+        URLMapping.PAYMENT_PAY,
+        {
+          amount: values.amount,
+        },
+        false
+      );
+
+      if (response && response.success) {
+        setIsRechargeModalOpen(false);
+        rechargeForm.resetFields();
+
+        window.location.href = response.data;
+      } else {
+        notification.error({
+          message: Messages.ERROR.FAIL,
+          description: response.message || Messages.ERROR.FAIL,
+        });
+      }
+    } catch (error) {
+      notification.error({
+        message: Messages.ERROR.FAIL,
+        description: "An error occurred while recharging credits.",
+      });
+    }
+    hideLoading();
   };
 
   return (
@@ -157,6 +196,9 @@ const Profile: React.FC = () => {
               <Descriptions.Item label="Bids Made">
                 {user.bids?.length || 0}
               </Descriptions.Item>
+              <Descriptions.Item label="Credits">
+                {user.credit / 1000 || 0}
+              </Descriptions.Item>
             </Descriptions>
           </Card>
         </div>
@@ -164,8 +206,24 @@ const Profile: React.FC = () => {
 
       <Button
         type="primary"
+        icon={<DollarOutlined />}
+        onClick={() => setIsRechargeModalOpen(true)}
+      >
+        Recharge
+      </Button>
+      <Button
+        style={{ marginLeft: "1rem" }}
+        type="primary"
         icon={<PlusOutlined />}
         onClick={() => {
+          if (user.credit / 1000 < 5) {
+            notification.error({
+              message: "Insufficient Credits",
+              description:
+                "You need at least 5 credits to add an item. Please recharge your credits.",
+            });
+            return;
+          }
           setIsModalOpen(true);
           setModalFunction("add");
         }}
@@ -314,6 +372,36 @@ const Profile: React.FC = () => {
               </Button>
             </Col>
           </Row>
+        </Form>
+      </Modal>
+
+      {/* Recharge Modal */}
+      <Modal
+        title="Recharge Credits"
+        visible={isRechargeModalOpen}
+        onCancel={() => setIsRechargeModalOpen(false)}
+        footer={null}
+      >
+        <Form
+          form={rechargeForm}
+          layout="vertical"
+          onFinish={handleRechargeSubmit}
+        >
+          <Form.Item
+            name="amount"
+            label="Amount (1.000 = 1 credit)"
+            rules={[
+              { required: true, message: "Please enter the amount!" },
+              { type: "number", min: 1, message: "Amount must be at least 1!" },
+            ]}
+          >
+            <InputNumber style={{ width: "100%" }} min={1} />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Recharge
+            </Button>
+          </Form.Item>
         </Form>
       </Modal>
     </SidebarLayout>

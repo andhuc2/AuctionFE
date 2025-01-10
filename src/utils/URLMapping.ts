@@ -27,6 +27,8 @@ const URLMapping = {
     
     POST_RATING: '/api/Rating',
     GET_RATING: '/api/Rating',
+
+    PAYMENT_PAY: '/api/Payment/pay',
 };
 
 export default URLMapping;
