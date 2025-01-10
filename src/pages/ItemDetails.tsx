@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import SidebarLayout from "../components/SidebarLayout";
 import {
   Button,
@@ -185,7 +185,7 @@ const ItemDetails: React.FC = () => {
                 </Descriptions.Item>
               )}
               <Descriptions.Item label="Seller">
-                <Text>{item?.seller?.username || "N/A"}</Text>
+                <Link to={`/info/${item.sellerId}`}>{item?.seller?.username || "N/A"}</Link>
               </Descriptions.Item>
             </Descriptions>
           </div>

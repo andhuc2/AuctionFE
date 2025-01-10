@@ -13,6 +13,7 @@ import Register from "./pages/Register";
 import ItemDetails from "./pages/ItemDetails";
 import Categories from "./pages/Categories";
 import Verify from "./pages/Verify";
+import Info from "./pages/Info";
 
 // Define the route configuration
 const routeConfig = [
@@ -50,6 +51,11 @@ const routeConfig = [
     path: "/profile",
     element: <Profile />,
     protected: true,
+  },
+  {
+    path: "/info/:id",
+    element: <Info />,
+    protected: false,
   },
   {
     path: "/items/:id",
