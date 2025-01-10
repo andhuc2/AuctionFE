@@ -185,7 +185,7 @@ const ItemDetails: React.FC = () => {
                 </Descriptions.Item>
               )}
               <Descriptions.Item label="Seller">
-                <Link to={`/info/${item.sellerId}`}>{item?.seller?.username || "N/A"}</Link>
+                <Link to={`/info/${item?.sellerId}`}>{item?.seller?.username || "N/A"}</Link>
               </Descriptions.Item>
             </Descriptions>
           </div>

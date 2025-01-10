@@ -20,6 +20,7 @@ import {
   Upload,
 } from "antd";
 import {
+  AlertOutlined,
   DollarOutlined,
   PlusOutlined,
   UploadOutlined,
@@ -41,6 +42,7 @@ const Info: React.FC = () => {
   const [bids, setBids] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   const { getUserId } = useAuth();
+  const [form] = Form.useForm();
 
   useEffect(() => {
     (async () => {
@@ -64,10 +66,66 @@ const Info: React.FC = () => {
     hideLoading();
   };
 
+  const handleReportUser = async () => {
+    try {
+      const values = await form.validateFields();
+      const reason = values.reason;
+
+      const response = await BaseService.post(URLMapping.ADD_REPORT, {
+        userId: id,
+        content: reason,
+      });
+
+      if (response && response.success) {
+        form.resetFields();
+      } else {
+        notification.error({
+          message: "Error",
+          description: response?.message || Messages.ERROR.FAIL,
+        });
+      }
+    } catch (error) {
+      notification.error({
+        message: "Error",
+        description: Messages.ERROR.FAIL,
+      });
+    }
+  };
+
   return (
     <SidebarLayout>
       <Title style={{ marginTop: "2rem" }} level={4}>
-        User Info
+        {user && user.fullName}
+        <Button
+          type="text"
+          about="Report"
+          danger
+          icon={<AlertOutlined />}
+          style={{ marginBottom: "1rem", marginLeft: "0.5rem" }}
+          onClick={() => {
+            Modal.confirm({
+              title: "Report User",
+              content: (
+                <Form form={form} layout="vertical">
+                  <Form.Item
+                    label="Reason"
+                    name="reason"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input the reason!",
+                      },
+                    ]}
+                  >
+                    <Input.TextArea />
+                  </Form.Item>
+                </Form>
+              ),
+              onOk: handleReportUser,
+              onCancel: () => form.resetFields(),
+            });
+          }}
+        />
       </Title>
 
       {user && (
@@ -122,9 +180,7 @@ const Info: React.FC = () => {
             title: "Item",
             dataIndex: "itemId",
             key: "bidder",
-            render: (itemId) => (
-              <Link to={`/items/${itemId}`}>View Item</Link>
-            ),
+            render: (itemId) => <Link to={`/items/${itemId}`}>View Item</Link>,
           },
           {
             title: "Amount",
