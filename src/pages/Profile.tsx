@@ -28,6 +28,7 @@ import { Messages } from "../utils/Constant";
 import { useLoading } from "../hooks/useLoading";
 import ItemCard from "../components/item/ItemCard";
 import dayjs from "dayjs";
+import HeaderLayout from "../components/HeaderLayout";
 
 const Profile: React.FC = () => {
   const { logout } = useAuth();
@@ -176,7 +177,7 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <SidebarLayout>
+    <HeaderLayout>
       <h1>Profile</h1>
 
       {user && (
@@ -404,7 +405,7 @@ const Profile: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </SidebarLayout>
+    </HeaderLayout>
   );
 };
 

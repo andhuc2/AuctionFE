@@ -9,6 +9,7 @@ import BaseService from "../services/BaseService";
 import { useLoading } from "../hooks/useLoading";
 import { set } from "lodash";
 import Search, { SearchProps } from "antd/es/input/Search";
+import HeaderLayout from "../components/HeaderLayout";
 
 const Home: React.FC = () => {
   const { logout } = useAuth();
@@ -81,7 +82,7 @@ const Home: React.FC = () => {
   };
 
   return (
-    <SidebarLayout>
+    <HeaderLayout>
       <Row justify="space-between" align="middle">
         <Col>
           <h1>Home</h1>
@@ -130,7 +131,7 @@ const Home: React.FC = () => {
           </Col>
         ))}
       </Row>
-    </SidebarLayout>
+    </HeaderLayout>
   );
 };
 

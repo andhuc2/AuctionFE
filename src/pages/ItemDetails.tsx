@@ -22,6 +22,7 @@ import dayjs from "dayjs";
 import { DollarOutlined, StarOutlined } from "@ant-design/icons";
 import useAuth from "../hooks/useAuth";
 import { Messages } from "../utils/Constant";
+import HeaderLayout from "../components/HeaderLayout";
 
 const { Title, Text } = Typography;
 
@@ -127,7 +128,7 @@ const ItemDetails: React.FC = () => {
   };
 
   return (
-    <SidebarLayout>
+    <HeaderLayout>
       <Row gutter={[16, 16]} style={{ marginBottom: "20px" }}>
         <Col span={16}>
           <Title level={3}>{item?.title || "--"}</Title>
@@ -288,7 +289,7 @@ const ItemDetails: React.FC = () => {
           />
         </div>
       </Modal>
-    </SidebarLayout>
+    </HeaderLayout>
   );
 };
 
