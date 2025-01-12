@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import SidebarLayout from "../components/SidebarLayout";
+import HeaderLayout from "../components/HeaderLayout";
 import {
   Button,
   Col,
@@ -14,6 +14,7 @@ import {
   Card,
   Modal,
   Rate,
+  Space,
 } from "antd";
 import URLMapping, { API_URL } from "../utils/URLMapping";
 import BaseService from "../services/BaseService";
@@ -22,7 +23,6 @@ import dayjs from "dayjs";
 import { DollarOutlined, StarOutlined } from "@ant-design/icons";
 import useAuth from "../hooks/useAuth";
 import { Messages } from "../utils/Constant";
-import HeaderLayout from "../components/HeaderLayout";
 
 const { Title, Text } = Typography;
 
@@ -129,36 +129,29 @@ const ItemDetails: React.FC = () => {
 
   return (
     <HeaderLayout>
-      <Row gutter={[16, 16]} style={{ marginBottom: "20px" }}>
-        <Col span={16}>
-          <Title level={3}>{item?.title || "--"}</Title>
-          <Text>{item?.description || "--"}</Text>
-          <Divider />
-          {item?.imagePath && (
-            <div
-              style={{
-                marginBottom: "10px",
-                display: "flex",
-                justifyContent: "center",
-              }}
-            >
-              <img
-                src={API_URL + "/" + item.imagePath}
-                alt="Item"
-                style={{
-                  width: "100%",
-                  aspectRatio: "4/3",
-                  maxWidth: "600px",
-                  objectFit: "contain",
-                }}
-              />
-            </div>
-          )}
-          <div>
+      <Row gutter={[24, 24]}>
+        <Col xs={24} md={16}>
+          <Card title={item?.title || "--"} bordered={false}>
+            <Text>{item?.description || "--"}</Text>
+            <Divider />
+            {item?.imagePath && (
+              <div style={{ textAlign: "center", marginTop: "20px" }}>
+                <img
+                  src={API_URL + "/" + item.imagePath}
+                  alt="Item"
+                  style={{
+                    maxWidth: "100%",
+                    aspectRatio: "4/3",
+                    objectFit: "contain",
+                  }}
+                />
+              </div>
+            )}
             <Descriptions
               bordered
               column={1}
               size="middle"
+              title="Item Details"
               labelStyle={{ fontWeight: "bold", color: "#595959" }}
               contentStyle={{ color: "#333" }}
             >
@@ -186,24 +179,15 @@ const ItemDetails: React.FC = () => {
                 </Descriptions.Item>
               )}
               <Descriptions.Item label="Seller">
-                <Link to={`/info/${item?.sellerId}`}>{item?.seller?.username || "N/A"}</Link>
+                <Link to={`/info/${item?.sellerId}`}>
+                  {item?.seller?.username || "N/A"}
+                </Link>
               </Descriptions.Item>
             </Descriptions>
-          </div>
+          </Card>
         </Col>
-        <Col span={8}></Col>
-      </Row>
-      <Divider />
-      <Row>
-        <Col span={24}>
-          <div
-            style={{
-              marginTop: "2rem",
-              display: "flex",
-              flexDirection: "column",
-              maxWidth: "200px",
-            }}
-          >
+        <Col xs={24} md={8}>
+          <Card title="Place a Bid" bordered={false}>
             <Input
               min={item?.minimumBid ?? 1}
               hidden={biddingFormState}
@@ -217,58 +201,63 @@ const ItemDetails: React.FC = () => {
               type="primary"
               icon={<DollarOutlined />}
               onClick={handleBidSubmit}
+              block
             >
               Place Bid
             </Button>
-          </div>
-          <Title style={{ marginTop: "2rem" }} level={4}>
-            Bid History
-          </Title>
-          <Table
-            dataSource={bids}
-            columns={[
-              {
-                title: "Bidder",
-                dataIndex: ["bidder", "fullName"],
-                key: "bidder",
-              },
-              {
-                title: "Amount",
-                dataIndex: "bidAmount",
-                key: "amount",
-                render: (bidAmount) => `$${bidAmount.toFixed(2)}`,
-              },
-              {
-                title: "Time",
-                dataIndex: "bidDate",
-                key: "time",
-                render: (time) => new Date(time).toLocaleString(),
-              },
-              ...(getUserId() === item?.sellerId
-                ? [
-                    {
-                      title: "Actions",
-                      key: "actions",
-                      render: (_: any, record: any) => (
-                        <Button
-                          type="link"
-                          icon={<StarOutlined />}
-                          onClick={async () => {
-                            await loadRating(record.bidder.id);
-                            setIsRateModalVisible(true);
-                            setCurrentBidderId(record.bidder.id);
-                          }}
-                        >
-                          Rate
-                        </Button>
-                      ),
-                    },
-                  ]
-                : []),
-            ]}
-            pagination={{ pageSize: 50 }}
-            rowKey={(record) => record.id}
-          />
+          </Card>
+        </Col>
+      </Row>
+      <Divider />
+      <Row>
+        <Col span={24}>
+          <Card title="Bid History" bordered={false}>
+            <Table
+              dataSource={bids}
+              columns={[
+                {
+                  title: "Bidder",
+                  dataIndex: ["bidder", "fullName"],
+                  key: "bidder",
+                },
+                {
+                  title: "Amount",
+                  dataIndex: "bidAmount",
+                  key: "amount",
+                  render: (bidAmount) => `$${bidAmount.toFixed(2)}`,
+                },
+                {
+                  title: "Time",
+                  dataIndex: "bidDate",
+                  key: "time",
+                  render: (time) => new Date(time).toLocaleString(),
+                },
+                ...(getUserId() === item?.sellerId
+                  ? [
+                      {
+                        title: "Actions",
+                        key: "actions",
+                        render: (_: any, record: any) => (
+                          <Button
+                            type="link"
+                            icon={<StarOutlined />}
+                            onClick={async () => {
+                              await loadRating(record.bidder.id);
+                              setIsRateModalVisible(true);
+                              setCurrentBidderId(record.bidder.id);
+                            }}
+                          >
+                            Rate
+                          </Button>
+                        ),
+                      },
+                    ]
+                  : []),
+              ]}
+              pagination={{ pageSize: 50 }}
+              rowKey={(record) => record.id}
+            />
+          </Card>
         </Col>
       </Row>
 
@@ -280,14 +269,16 @@ const ItemDetails: React.FC = () => {
         okText="Submit"
         cancelText="Cancel"
       >
-        <div style={{ textAlign: "center" }}>
-          <Text strong>Rate this bidder:</Text>
+        <Space direction="vertical" size="middle" style={{ textAlign: "center" }}>
+          <Text strong style={{ fontSize: 16 }}>
+            Rate this bidder:
+          </Text>
           <Rate
             value={ratingValue}
             onChange={(value) => setRatingValue(value)}
-            style={{ marginTop: "10px" }}
+            style={{ fontSize: 24 }}
           />
-        </div>
+        </Space>
       </Modal>
     </HeaderLayout>
   );
