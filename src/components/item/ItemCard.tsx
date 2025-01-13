@@ -10,6 +10,8 @@ import {
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 dayjs.extend(isBetween);
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
 import { useNavigate } from "react-router-dom";
 import BaseService from "../../services/BaseService";
 import URLMapping from "../../utils/URLMapping";
@@ -134,9 +136,9 @@ const ItemCard: React.FC<ItemCardProps & { [key: string]: any }> = ({
         <strong>$ {minimumBid}</strong>
       </p>
       <p>
-        {dayjs(bidStart).format("H:mm DD/MM/YY") +
+        {dayjs.utc(bidStart).local().format("H:mm DD/MM/YY") +
           " - " +
-          dayjs(bidEnd).format("H:mm DD/MM/YY")}
+          dayjs.utc(bidEnd).local().format("H:mm DD/MM/YY")}
       </p>
     </Card>
   );

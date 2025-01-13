@@ -149,6 +149,12 @@ const Info: React.FC = () => {
           <Descriptions.Item label="Email">
             <Text strong>{user?.email}</Text>
           </Descriptions.Item>
+          <Descriptions.Item label="Phone">
+            <Text strong>{user?.phone || "N/A"}</Text>
+          </Descriptions.Item>
+          <Descriptions.Item label="Address">
+            <Text strong>{user?.address || "N/A"}</Text>
+          </Descriptions.Item>
           <Descriptions.Item label="Role">
             <Tag color={user?.role === 1 ? "blue" : "green"}>
               {user?.role === 1 ? "Admin" : "User"}

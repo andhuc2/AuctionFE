@@ -71,8 +71,6 @@ const HeaderLayout: React.FC<{ children: React.ReactNode }> = ({
     })
   }
 
-  console.log(menuItems.length);
-
   return (
     <Layout style={{ minHeight: "100vh", width: "100%" }}>
       <Header

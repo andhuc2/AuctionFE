@@ -18,6 +18,7 @@ import {
   Typography,
   Space,
   Avatar,
+  Tag,
 } from "antd";
 import {
   DollarOutlined,
@@ -49,6 +50,8 @@ const Profile: React.FC = () => {
   const { getUserId } = useAuth();
   const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
   const [rechargeForm] = Form.useForm();
+  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
+  const [editProfileForm] = Form.useForm();
 
   useEffect(() => {
     (async () => {
@@ -137,8 +140,8 @@ const Profile: React.FC = () => {
       title: item.title,
       minimumBid: item.minimumBid,
       bidIncrement: item.bidIncrement,
-      bidStartDate: dayjs(item.bidStartDate),
-      bidEndDate: dayjs(item.bidEndDate),
+      bidStartDate: dayjs.utc(item.bidStartDate).local(),
+      bidEndDate: dayjs.utc(item.bidEndDate).local(),
       description: item.description,
       categoryId: item.categoryId,
       imagePath: item.imagePath,
@@ -176,11 +179,52 @@ const Profile: React.FC = () => {
     hideLoading();
   };
 
+  const handleEditProfile = () => {
+    setIsEditProfileModalOpen(true);
+    editProfileForm.setFieldsValue({
+      fullName: user?.fullName,
+      address: user?.address,
+      phone: user?.phone,
+    });
+  };
+
+  const handleEditProfileSubmit = async (values: any) => {
+    showLoading();
+    values.id = getUserId();
+    const response = await BaseService.put(
+      URLMapping.PROFILE_UPDATE,
+      values,
+      false
+    );
+    if (response && response.success) {
+      setIsEditProfileModalOpen(false);
+      notification.success({
+        message: "Profile Updated",
+        description: "Your profile has been updated successfully.",
+      });
+      // Refresh user data
+      const userData = await BaseService.get(
+        URLMapping.PROFILE_USER + `/${getUserId()}`,
+        false
+      );
+      setUser(userData?.data ?? null);
+    } else {
+      notification.error({
+        message: "Failed to Update Profile",
+        description: response?.message || "Please try again later.",
+      });
+    }
+    hideLoading();
+  };
+
   return (
     <HeaderLayout>
       {/* User Profile Section */}
       <Card
-        style={{ marginBottom: "24px", boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}
+        style={{
+          marginBottom: "24px",
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        }}
       >
         <Row align="middle" gutter={24}>
           <Col>
@@ -194,6 +238,13 @@ const Profile: React.FC = () => {
           </Col>
           <Col>
             <Space>
+              <Button
+                type="default"
+                icon={<UserOutlined />}
+                onClick={handleEditProfile}
+              >
+                Edit Profile
+              </Button>
               <Button
                 type="primary"
                 icon={<DollarOutlined />}
@@ -222,6 +273,42 @@ const Profile: React.FC = () => {
             </Space>
           </Col>
         </Row>
+      </Card>
+
+      {/* User Details Section */}
+      <Card
+        title="User Details"
+        bordered={false}
+        style={{
+          marginBottom: "24px",
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        <Descriptions bordered column={1}>
+          <Descriptions.Item label="Name">
+            <Text strong>{user?.fullName || "N/A"}</Text>
+          </Descriptions.Item>
+          <Descriptions.Item label="Email">
+            <Text strong>{user?.email}</Text>
+          </Descriptions.Item>
+          <Descriptions.Item label="Phone">
+            <Text strong>{user?.phone || "N/A"}</Text>
+          </Descriptions.Item>
+          <Descriptions.Item label="Address">
+            <Text strong>{user?.address || "N/A"}</Text>
+          </Descriptions.Item>
+          <Descriptions.Item label="Role">
+            <Tag color={user?.role === 1 ? "blue" : "green"}>
+              {user?.role === 1 ? "Admin" : "User"}
+            </Tag>
+          </Descriptions.Item>
+          <Descriptions.Item label="Items Sold">
+            <Text strong>{user?.items?.length || 0}</Text>
+          </Descriptions.Item>
+          <Descriptions.Item label="Bids Made">
+            <Text strong>{user?.bids?.length || 0}</Text>
+          </Descriptions.Item>
+        </Descriptions>
       </Card>
 
       {/* Items Grid Section */}
@@ -396,6 +483,51 @@ const Profile: React.FC = () => {
           <Form.Item>
             <Button type="primary" htmlType="submit">
               Recharge
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Edit Profile Modal */}
+      <Modal
+        title="Edit Profile"
+        visible={isEditProfileModalOpen}
+        onCancel={() => setIsEditProfileModalOpen(false)}
+        footer={null}
+      >
+        <Form
+          form={editProfileForm}
+          layout="vertical"
+          onFinish={handleEditProfileSubmit}
+        >
+          <Form.Item
+            name="fullName"
+            label="Full Name"
+            rules={[
+              { required: true, message: "Please enter your full name!" },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="address"
+            label="Address"
+            rules={[{ required: true, message: "Please enter your address!" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="phone"
+            label="Phone"
+            rules={[
+              { required: true, message: "Please enter your phone number!" },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Save Changes
             </Button>
           </Form.Item>
         </Form>
