@@ -267,8 +267,9 @@ const ItemDetails: React.FC = () => {
               columns={[
                 {
                   title: "Bidder",
-                  dataIndex: ["bidder", "fullName"],
+                  dataIndex: "bidder",
                   key: "bidder",
+                  render: (bidder) => <Link to={`/info/${bidder.id}`}>{bidder.fullName}</Link>,
                 },
                 {
                   title: "Amount",
