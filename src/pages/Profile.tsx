@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import SidebarLayout from "../components/SidebarLayout";
 import {
   Button,
   Card,
@@ -16,11 +15,15 @@ import {
   Row,
   Select,
   Upload,
+  Typography,
+  Space,
+  Avatar,
 } from "antd";
 import {
   DollarOutlined,
   PlusOutlined,
   UploadOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import BaseService from "../services/BaseService";
 import URLMapping, { API_URL } from "../utils/URLMapping";
@@ -29,6 +32,8 @@ import { useLoading } from "../hooks/useLoading";
 import ItemCard from "../components/item/ItemCard";
 import dayjs from "dayjs";
 import HeaderLayout from "../components/HeaderLayout";
+
+const { Title, Text } = Typography;
 
 const Profile: React.FC = () => {
   const { logout } = useAuth();
@@ -105,8 +110,6 @@ const Profile: React.FC = () => {
     const { file, onSuccess } = options;
     try {
       const response = await BaseService.uploadFile("/api/upload", file, false);
-
-      // Assuming the response contains a URL
       if (response && response.success) {
         form.setFieldsValue({ imagePath: response.data });
         onSuccess && onSuccess(response.data);
@@ -118,8 +121,6 @@ const Profile: React.FC = () => {
     const { file, onSuccess } = options;
     try {
       const response = await BaseService.uploadFile("/api/upload", file, false);
-
-      // Assuming the response contains a URL
       if (response && response.success) {
         form.setFieldsValue({ documentPath: response.data });
         onSuccess && onSuccess(response.data);
@@ -159,7 +160,6 @@ const Profile: React.FC = () => {
       if (response && response.success) {
         setIsRechargeModalOpen(false);
         rechargeForm.resetFields();
-
         window.location.href = response.data;
       } else {
         notification.error({
@@ -178,69 +178,63 @@ const Profile: React.FC = () => {
 
   return (
     <HeaderLayout>
-      <h1>Profile</h1>
-
-      {user && (
-        <div style={{ marginBottom: "2rem" }}>
-          <Card title="User Details" bordered>
-            <Descriptions column={1} bordered>
-              <Descriptions.Item label="Full Name">
-                {user.fullName || "N/A"}
-              </Descriptions.Item>
-              <Descriptions.Item label="Email">{user.email}</Descriptions.Item>
-              <Descriptions.Item label="Role">
-                {user.role === 1 ? "Admin" : "User"}
-              </Descriptions.Item>
-              <Descriptions.Item label="Items Sold">
-                {user.items?.length || 0}
-              </Descriptions.Item>
-              <Descriptions.Item label="Bids Made">
-                {user.bids?.length || 0}
-              </Descriptions.Item>
-              <Descriptions.Item label="Credits">
-                {user.credit / 1000 || 0}
-              </Descriptions.Item>
-            </Descriptions>
-          </Card>
-        </div>
-      )}
-
-      <Button
-        type="primary"
-        icon={<DollarOutlined />}
-        onClick={() => setIsRechargeModalOpen(true)}
+      {/* User Profile Section */}
+      <Card
+        style={{ marginBottom: "24px", boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}
       >
-        Recharge
-      </Button>
-      <Button
-        style={{ marginLeft: "1rem" }}
-        type="primary"
-        icon={<PlusOutlined />}
-        onClick={() => {
-          if (user.credit / 1000 < 5) {
-            notification.error({
-              message: "Insufficient Credits",
-              description:
-                "You need at least 5 credits to add an item. Please recharge your credits.",
-            });
-            return;
-          }
-          setIsModalOpen(true);
-          setModalFunction("add");
-        }}
-      >
-        Add Item to Sell
-      </Button>
+        <Row align="middle" gutter={24}>
+          <Col>
+            <Avatar size={64} icon={<UserOutlined />} />
+          </Col>
+          <Col flex={1}>
+            <Title level={4} style={{ marginBottom: 0 }}>
+              {user?.fullName || "N/A"}
+            </Title>
+            <Text type="secondary">{user?.email}</Text>
+          </Col>
+          <Col>
+            <Space>
+              <Button
+                type="primary"
+                icon={<DollarOutlined />}
+                onClick={() => setIsRechargeModalOpen(true)}
+              >
+                Recharge Credits
+              </Button>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => {
+                  if (user.credit / 1000 < 5) {
+                    notification.error({
+                      message: "Insufficient Credits",
+                      description:
+                        "You need at least 5 credits to add an item. Please recharge your credits.",
+                    });
+                    return;
+                  }
+                  setIsModalOpen(true);
+                  setModalFunction("add");
+                }}
+              >
+                Add Item
+              </Button>
+            </Space>
+          </Col>
+        </Row>
+      </Card>
 
-      <Row gutter={[16, 16]} style={{ paddingTop: "2rem" }}>
+      {/* Items Grid Section */}
+      <Row gutter={[16, 16]}>
         {items.map((item: any) => (
-          <Col xs={24} sm={12} md={8} lg={6} key={item.id}>
+          <Col xs={24} sm={12} md={6} lg={4} key={item.id}>
             <ItemCard
               id={item.id}
               name={item.title}
               description={item.description}
               bidStart={item.bidStartDate}
               bidEnd={item.bidEndDate}
+              minimumBid={item.minimumBid}
               image={API_URL + "/" + item.imagePath}
               mode="edit"
               loadData={loadData}
@@ -250,12 +244,13 @@ const Profile: React.FC = () => {
         ))}
       </Row>
 
+      {/* Add/Edit Item Modal */}
       <Modal
-        title="Add Item to Sell"
+        title={modalFunction === "add" ? "Add Item to Sell" : "Edit Item"}
         visible={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={null}
-        width="80%" // Set the modal to a larger width
+        width="80%"
       >
         <Form form={form} layout="vertical" onFinish={handleFormSubmit}>
           <Row gutter={24}>

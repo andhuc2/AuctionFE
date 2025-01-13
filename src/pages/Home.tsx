@@ -118,13 +118,14 @@ const Home: React.FC = () => {
         onScroll={handleScroll}
       >
         {items.map((item: any) => (
-          <Col xs={24} sm={12} md={6} lg={5} key={item.id}>
+          <Col xs={24} sm={12} md={6} lg={4} key={item.id}>
             <ItemCard
               id={item.id}
               name={item.title}
               description={item.description}
               bidStart={item.bidStartDate}
               bidEnd={item.bidEndDate}
+              minimumBid={item.minimumBid}
               image={API_URL + "/" + item.imagePath}
               mode="view"
             />

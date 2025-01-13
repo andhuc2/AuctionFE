@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Button, Modal, notification } from "antd";
+import { Card, Button, Modal, notification, Typography } from "antd";
 import {
   ClockCircleOutlined,
   DeleteOutlined,
@@ -16,6 +16,7 @@ import URLMapping from "../../utils/URLMapping";
 import { get } from "lodash";
 
 const { Meta } = Card;
+const { Text } = Typography;
 
 interface ItemCardProps {
   id: number;
@@ -23,6 +24,7 @@ interface ItemCardProps {
   description: string;
   bidStart: string;
   bidEnd: string;
+  minimumBid: number;
   image: string;
   mode: "edit" | "view";
 }
@@ -33,6 +35,7 @@ const ItemCard: React.FC<ItemCardProps & { [key: string]: any }> = ({
   description,
   bidStart,
   bidEnd,
+  minimumBid,
   image,
   mode = "view",
   ...props
@@ -79,6 +82,9 @@ const ItemCard: React.FC<ItemCardProps & { [key: string]: any }> = ({
 
   return (
     <Card
+      style={{ 
+        paddingBottom: 0
+       }}
       hoverable
       cover={
         <img
@@ -112,8 +118,8 @@ const ItemCard: React.FC<ItemCardProps & { [key: string]: any }> = ({
               <Button
                 onClick={() => navigate(`/items/${id}`)}
                 key="bid"
-                type={getBidStatus() === 'Bid Now' ? 'primary' : 'default'}
-                icon={getBidStatus() === 'Bid Now' ? <ShopOutlined /> : null}
+                type={getBidStatus() === "Bid Now" ? "primary" : "default"}
+                icon={getBidStatus() === "Bid Now" ? <ShopOutlined /> : null}
               >
                 {getBidStatus()}
               </Button>,
@@ -124,15 +130,13 @@ const ItemCard: React.FC<ItemCardProps & { [key: string]: any }> = ({
       }
     >
       <Meta title={name} description={description} />
-      <p style={{ marginTop: "3rem", marginBottom: 0 }}>
-        <strong>
-          <ClockCircleOutlined /> Bid time:
-        </strong>
-        <br />
-        <br />
-        {dayjs(bidStart).format("HH:mm DD/MM/YYYY") +
+      <p style={{ marginTop: "2rem", marginBottom: "0.5rem" }}>
+        <strong>$ {minimumBid}</strong>
+      </p>
+      <p>
+        {dayjs(bidStart).format("H:mm DD/MM/YY") +
           " - " +
-          dayjs(bidEnd).format("HH:mm DD/MM/YYYY")}
+          dayjs(bidEnd).format("H:mm DD/MM/YY")}
       </p>
     </Card>
   );

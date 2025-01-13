@@ -15,6 +15,8 @@ import {
   Modal,
   Rate,
   Space,
+  Image,
+  Tag,
 } from "antd";
 import URLMapping, { API_URL } from "../utils/URLMapping";
 import BaseService from "../services/BaseService";
@@ -127,43 +129,107 @@ const ItemDetails: React.FC = () => {
     hideLoading();
   };
 
+  const getBidStatus = () => {
+    const now = dayjs();
+    if (now.isBetween(item?.bidStartDate, item?.bidEndDate)) {
+      return <Tag color="green">Active</Tag>;
+    } else if (now.isAfter(item?.bidEndDate)) {
+      return <Tag color="red">Ended</Tag>;
+    } else {
+      return <Tag color="blue">Upcoming</Tag>;
+    }
+  };
+
   return (
     <HeaderLayout>
-      <Row gutter={[24, 24]}>
+      {/* Hero Section */}
+      <Row gutter={[24, 24]} style={{ marginTop: "24px" }}>
         <Col xs={24} md={16}>
-          <Card title={item?.title || "--"} bordered={false}>
-            <Text>{item?.description || "--"}</Text>
+          <Card
+            bordered={false}
+            style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}
+            cover={
+              <Image
+                src={API_URL + "/" + item?.imagePath}
+                alt="Item"
+                style={{
+                  width: "100%",
+                  height: "400px",
+                  objectFit: "cover",
+                  borderRadius: "8px 8px 0 0",
+                }}
+              />
+            }
+          >
+            <Title level={2} style={{ marginBottom: "8px" }}>
+              {item?.title || "--"}
+            </Title>
+            <Text type="secondary" style={{ fontSize: "16px" }}>
+              {item?.description || "--"}
+            </Text>
             <Divider />
-            {item?.imagePath && (
-              <div style={{ textAlign: "center", marginTop: "20px" }}>
-                <img
-                  src={API_URL + "/" + item.imagePath}
-                  alt="Item"
-                  style={{
-                    maxWidth: "100%",
-                    aspectRatio: "4/3",
-                    objectFit: "contain",
-                  }}
-                />
-              </div>
-            )}
-            <Descriptions
-              bordered
-              column={1}
-              size="middle"
-              title="Item Details"
-              labelStyle={{ fontWeight: "bold", color: "#595959" }}
-              contentStyle={{ color: "#333" }}
+            <Space size="large">
+              <Text strong style={{ fontSize: "24px" }}>
+                ${item?.minimumBid || "0"}
+              </Text>
+              {getBidStatus()}
+            </Space>
+          </Card>
+        </Col>
+
+        {/* Bid Section (Sticky Sidebar) */}
+        <Col xs={24} md={8}>
+          <Card
+            title={<Text strong>Place a Bid</Text>}
+            bordered={false}
+            style={{
+              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+              position: "sticky",
+              top: "24px",
+            }}
+          >
+            <Input
+              min={item?.minimumBid ?? 1}
+              hidden={biddingFormState}
+              placeholder="Enter bid amount"
+              type="number"
+              value={bidAmount}
+              onChange={(e) => setBidAmount(Number(e.target.value))}
+              style={{ marginBottom: "16px" }}
+            />
+            <Button
+              type="primary"
+              icon={<DollarOutlined />}
+              onClick={handleBidSubmit}
+              block
+              style={{ height: "40px", fontSize: "16px" }}
             >
+              Place Bid
+            </Button>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Details Section */}
+      <Row gutter={[24, 24]} style={{ marginTop: "24px" }}>
+        <Col span={24}>
+          <Card
+            title={<Text strong>Item Details</Text>}
+            bordered={false}
+            style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}
+          >
+            <Descriptions bordered column={1} size="middle">
               <Descriptions.Item label="Starting Price">
-                <Text>${item?.minimumBid || "0"}</Text>
+                <Text strong>${item?.minimumBid || "0"}</Text>
               </Descriptions.Item>
               <Descriptions.Item label="Bid Increment">
-                <Text>${item?.bidIncrement || "0"}</Text>
+                <Text strong>${item?.bidIncrement || "0"}</Text>
               </Descriptions.Item>
               <Descriptions.Item label="Bid Timeframe">
-                {dayjs(item?.bidStartDate).format("HH:mm DD/MM/YYYY")} -{" "}
-                {dayjs(item?.bidEndDate).format("HH:mm DD/MM/YYYY")}
+                <Text strong>
+                  {dayjs(item?.bidStartDate).format("HH:mm DD/MM/YYYY")} -{" "}
+                  {dayjs(item?.bidEndDate).format("HH:mm DD/MM/YYYY")}
+                </Text>
               </Descriptions.Item>
               {item?.documentPath && (
                 <Descriptions.Item label="Document">
@@ -186,32 +252,16 @@ const ItemDetails: React.FC = () => {
             </Descriptions>
           </Card>
         </Col>
-        <Col xs={24} md={8}>
-          <Card title="Place a Bid" bordered={false}>
-            <Input
-              min={item?.minimumBid ?? 1}
-              hidden={biddingFormState}
-              placeholder="Enter bid amount"
-              type="number"
-              value={bidAmount}
-              onChange={(e) => setBidAmount(Number(e.target.value))}
-              style={{ marginBottom: "10px" }}
-            />
-            <Button
-              type="primary"
-              icon={<DollarOutlined />}
-              onClick={handleBidSubmit}
-              block
-            >
-              Place Bid
-            </Button>
-          </Card>
-        </Col>
       </Row>
-      <Divider />
-      <Row>
+
+      {/* Bid History Section */}
+      <Row style={{ marginTop: "24px" }}>
         <Col span={24}>
-          <Card title="Bid History" bordered={false}>
+          <Card
+            title={<Text strong>Bid History</Text>}
+            bordered={false}
+            style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}
+          >
             <Table
               dataSource={bids}
               columns={[
@@ -254,15 +304,16 @@ const ItemDetails: React.FC = () => {
                     ]
                   : []),
               ]}
-              pagination={{ pageSize: 50 }}
+              pagination={{ pageSize: 5 }}
               rowKey={(record) => record.id}
             />
           </Card>
         </Col>
       </Row>
 
+      {/* Rate Bidder Modal */}
       <Modal
-        title="Rate Bidder"
+        title={<Text strong>Rate Bidder</Text>}
         visible={isRateModalVisible}
         onOk={handleRate}
         onCancel={() => setIsRateModalVisible(false)}
