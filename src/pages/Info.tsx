@@ -34,6 +34,9 @@ const Info: React.FC = () => {
   const [bids, setBids] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   const [form] = Form.useForm();
+  const { getUserId } = useAuth();
+
+  if (id && getUserId() === parseInt(id)) navigate("/profile");
 
   useEffect(() => {
     if (!id) {
@@ -89,7 +92,10 @@ const Info: React.FC = () => {
     <SidebarLayout>
       {/* User Profile Section */}
       <Card
-        style={{ marginBottom: "24px", boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}
+        style={{
+          marginBottom: "24px",
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        }}
       >
         <Row align="middle" gutter={24}>
           <Col>
@@ -140,7 +146,10 @@ const Info: React.FC = () => {
       <Card
         title="User Details"
         bordered={false}
-        style={{ marginBottom: "24px", boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}
+        style={{
+          marginBottom: "24px",
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        }}
       >
         <Descriptions bordered column={1}>
           <Descriptions.Item label="Name">
@@ -173,7 +182,10 @@ const Info: React.FC = () => {
       <Card
         title="Items"
         bordered={false}
-        style={{ marginBottom: "24px", boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}
+        style={{
+          marginBottom: "24px",
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        }}
       >
         <Row gutter={[16, 16]}>
           {items.map((item: any) => (
@@ -207,7 +219,9 @@ const Info: React.FC = () => {
               title: "Item",
               dataIndex: "itemId",
               key: "item",
-              render: (itemId) => <Link to={`/items/${itemId}`}>View Item</Link>,
+              render: (itemId) => (
+                <Link to={`/items/${itemId}`}>View Item</Link>
+              ),
             },
             {
               title: "Amount",

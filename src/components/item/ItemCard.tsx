@@ -131,7 +131,7 @@ const ItemCard: React.FC<ItemCardProps & { [key: string]: any }> = ({
             ]
       }
     >
-      <Meta title={name} description={description.length > 160 ? description.substring(0, 80) + "..." : description} />
+      <Meta title={name} description={description.length > 20 ? description.substring(0, 20) + "..." : description} />
       <p style={{ marginTop: "2rem", marginBottom: "0.5rem" }}>
         <strong>$ {minimumBid}</strong>
       </p>

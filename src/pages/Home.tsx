@@ -19,6 +19,7 @@ const Home: React.FC = () => {
   const [categories, setCategories] = React.useState<any>([]);
   const [totalPage, setTotalPage] = React.useState(1);
   const [currentPage, setCurrentPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(100);
   const [search, setSearch] = React.useState<string>("");
   const [selectedCategory, setSelectedCategory] = React.useState<
     number | string
@@ -44,7 +45,7 @@ const Home: React.FC = () => {
   const loadData = async () => {
     if (currentPage > totalPage) return;
     showLoading();
-    const queryParams = `page=${currentPage}&search=${search}&categoryId=${
+    const queryParams = `page=${currentPage}&size=${pageSize}&search=${search}&categoryId=${
       selectedCategory !== 0 ? selectedCategory : ""
     }`;
     const itemData = await BaseService.get(

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Button,
   Card,
@@ -19,6 +19,7 @@ import {
   Space,
   Avatar,
   Tag,
+  Table,
 } from "antd";
 import {
   DollarOutlined,
@@ -52,6 +53,7 @@ const Profile: React.FC = () => {
   const [rechargeForm] = Form.useForm();
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const [editProfileForm] = Form.useForm();
+  const [bids, setBids] = useState<any[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -67,6 +69,7 @@ const Profile: React.FC = () => {
         false
       );
       setUser(userData?.data ?? null);
+      setBids(userData?.data?.bids ?? []);
       hideLoading();
     })();
     loadData();
@@ -309,7 +312,7 @@ const Profile: React.FC = () => {
             <Text strong>{user?.bids?.length || 0}</Text>
           </Descriptions.Item>
           <Descriptions.Item label="Credits">
-            <Text strong>{user?.credit || 0}</Text>
+            <Text strong>{user?.credit / 1000 || 0}</Text>
           </Descriptions.Item>
         </Descriptions>
       </Card>
@@ -333,6 +336,41 @@ const Profile: React.FC = () => {
           </Col>
         ))}
       </Row>
+
+      {/* Bid History Section */}
+      <Card
+        title="Bid History"
+        bordered={false}
+        style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", marginTop: 24 }}
+      >
+        <Table
+          dataSource={bids}
+          columns={[
+            {
+              title: "Item",
+              dataIndex: "itemId",
+              key: "item",
+              render: (itemId) => (
+                <Link to={`/items/${itemId}`}>View Item</Link>
+              ),
+            },
+            {
+              title: "Amount",
+              dataIndex: "bidAmount",
+              key: "amount",
+              render: (bidAmount) => `$${bidAmount.toFixed(2)}`,
+            },
+            {
+              title: "Time",
+              dataIndex: "bidDate",
+              key: "time",
+              render: (time) => new Date(time).toLocaleString(),
+            },
+          ]}
+          pagination={{ pageSize: 5 }}
+          rowKey={(record) => record.id}
+        />
+      </Card>
 
       {/* Add/Edit Item Modal */}
       <Modal
