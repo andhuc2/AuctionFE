@@ -308,6 +308,9 @@ const Profile: React.FC = () => {
           <Descriptions.Item label="Bids Made">
             <Text strong>{user?.bids?.length || 0}</Text>
           </Descriptions.Item>
+          <Descriptions.Item label="Credits">
+            <Text strong>{user?.credit || 0}</Text>
+          </Descriptions.Item>
         </Descriptions>
       </Card>
 
