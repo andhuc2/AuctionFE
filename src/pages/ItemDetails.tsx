@@ -22,6 +22,8 @@ import URLMapping, { API_URL } from "../utils/URLMapping";
 import BaseService from "../services/BaseService";
 import { useLoading } from "../hooks/useLoading";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
 import { DollarOutlined, StarOutlined } from "@ant-design/icons";
 import useAuth from "../hooks/useAuth";
 import { Messages } from "../utils/Constant";
@@ -227,8 +229,8 @@ const ItemDetails: React.FC = () => {
               </Descriptions.Item>
               <Descriptions.Item label="Bid Timeframe">
                 <Text strong>
-                  {dayjs(item?.bidStartDate).format("HH:mm DD/MM/YYYY")} -{" "}
-                  {dayjs(item?.bidEndDate).format("HH:mm DD/MM/YYYY")}
+                  {dayjs.utc(item?.bidStartDate).local().format("HH:mm DD/MM/YYYY")} -{" "}
+                  {dayjs.utc(item?.bidEndDate).local().format("HH:mm DD/MM/YYYY")}
                 </Text>
               </Descriptions.Item>
               {item?.documentPath && (
