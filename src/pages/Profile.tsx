@@ -27,13 +27,13 @@ import {
   UploadOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import BaseService from "../services/BaseService";
+import useService from "../hooks/useService";
 import URLMapping, { API_URL } from "../utils/URLMapping";
-import { Messages } from "../utils/Constant";
+import { Constant } from "../utils/Constant";
 import { useLoading } from "../hooks/useLoading";
 import ItemCard from "../components/item/ItemCard";
 import dayjs from "dayjs";
-import HeaderLayout from "../components/HeaderLayout";
+import HeaderLayout from "../components/layouts/HeaderLayout";
 
 const { Title, Text } = Typography;
 
@@ -58,13 +58,13 @@ const Profile: React.FC = () => {
   useEffect(() => {
     (async () => {
       showLoading();
-      const categoryData = await BaseService.get(
+      const categoryData = await useService.get(
         URLMapping.GET_ALL_CATEGORY,
         false
       );
       setCategories(categoryData?.data ?? []);
 
-      const userData = await BaseService.get(
+      const userData = await useService.get(
         URLMapping.PROFILE_USER + `/${getUserId()}`,
         false
       );
@@ -76,34 +76,34 @@ const Profile: React.FC = () => {
   }, []);
 
   const loadData = async () => {
-    const itemData = await BaseService.get(URLMapping.GET_PERSON_ITEMS, false);
+    const itemData = await useService.get(URLMapping.GET_PERSON_ITEMS, false);
     setItems(itemData?.data?.queryable ?? []);
   };
 
   const handleFormSubmit = async (values: any) => {
     showLoading();
     if (modalFunction === "add") {
-      const response = await BaseService.post(URLMapping.ADD_ITEM, values);
+      const response = await useService.post(URLMapping.ADD_ITEM, values);
       if (response && response.success) {
         setIsModalOpen(false);
         form.resetFields();
         user.credit -= 5000;
       } else {
         notification.error({
-          message: Messages.ERROR.FAIL,
+          message: Constant.ERROR.FAIL,
           description: response.message,
         });
       }
       await loadData();
     } else {
       values.id = selectedItemId;
-      const response = await BaseService.put(URLMapping.UPDATE_ITEM, values);
+      const response = await useService.put(URLMapping.UPDATE_ITEM, values);
       if (response && response.success) {
         setIsModalOpen(false);
         form.resetFields();
       } else {
         notification.error({
-          message: Messages.ERROR.FAIL,
+          message: Constant.ERROR.FAIL,
           description: response.message,
         });
       }
@@ -115,7 +115,7 @@ const Profile: React.FC = () => {
   const handleUploadImage = async (options: any) => {
     const { file, onSuccess } = options;
     try {
-      const response = await BaseService.uploadFile("/api/upload", file, false);
+      const response = await useService.uploadFile("/api/upload", file, false);
       if (response && response.success) {
         form.setFieldsValue({ imagePath: response.data });
         onSuccess && onSuccess(response.data);
@@ -126,7 +126,7 @@ const Profile: React.FC = () => {
   const handleUploadDoc = async (options: any) => {
     const { file, onSuccess } = options;
     try {
-      const response = await BaseService.uploadFile("/api/upload", file, false);
+      const response = await useService.uploadFile("/api/upload", file, false);
       if (response && response.success) {
         form.setFieldsValue({ documentPath: response.data });
         onSuccess && onSuccess(response.data);
@@ -155,7 +155,7 @@ const Profile: React.FC = () => {
   const handleRechargeSubmit = async (values: any) => {
     showLoading();
     try {
-      const response = await BaseService.post(
+      const response = await useService.post(
         URLMapping.PAYMENT_PAY,
         {
           amount: values.amount,
@@ -169,13 +169,13 @@ const Profile: React.FC = () => {
         window.location.href = response.data;
       } else {
         notification.error({
-          message: Messages.ERROR.FAIL,
-          description: response.message || Messages.ERROR.FAIL,
+          message: Constant.ERROR.FAIL,
+          description: response.message || Constant.ERROR.FAIL,
         });
       }
     } catch (error) {
       notification.error({
-        message: Messages.ERROR.FAIL,
+        message: Constant.ERROR.FAIL,
         description: "An error occurred while recharging credits.",
       });
     }
@@ -194,7 +194,7 @@ const Profile: React.FC = () => {
   const handleEditProfileSubmit = async (values: any) => {
     showLoading();
     values.id = getUserId();
-    const response = await BaseService.put(
+    const response = await useService.put(
       URLMapping.PROFILE_UPDATE,
       values,
       false
@@ -206,7 +206,7 @@ const Profile: React.FC = () => {
         description: "Your profile has been updated successfully.",
       });
       // Refresh user data
-      const userData = await BaseService.get(
+      const userData = await useService.get(
         URLMapping.PROFILE_USER + `/${getUserId()}`,
         false
       );

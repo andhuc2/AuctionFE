@@ -11,9 +11,9 @@ import {
   Select,
 } from "antd";
 import { EditOutlined, DeleteOutlined, ReloadOutlined } from "@ant-design/icons";
-import BaseService from "../services/BaseService";
+import useService from "../hooks/useService";
 import URLMapping from "../utils/URLMapping";
-import SidebarLayout from "../components/SidebarLayout";
+import SidebarLayout from "../components/layouts/SidebarLayout";
 
 interface Category {
   id: number;
@@ -38,7 +38,7 @@ const Categories: React.FC = () => {
 
   const loadData = async () => {
     try {
-      const response = await BaseService.get(
+      const response = await useService.get(
         `${URLMapping.GET_CATEGORY}?page=${currentPage}&size=${pageSize}&search=${searchText}`,
         false
       );
@@ -57,7 +57,7 @@ const Categories: React.FC = () => {
 
   const handleUpdate = async () => {
     const updatedCategory = { ...editingCategory, ...form.getFieldsValue() };
-    const response = await BaseService.put(URLMapping.UPDATE_CATEGORY, updatedCategory);
+    const response = await useService.put(URLMapping.UPDATE_CATEGORY, updatedCategory);
     if (response && response.success) {
       setIsEditModalVisible(false);
       loadData();
@@ -71,7 +71,7 @@ const Categories: React.FC = () => {
       okText: "Yes, Delete",
       cancelText: "Cancel",
       onOk: async () => {
-        await BaseService.delete(`${URLMapping.DELETE_CATEGORY}/${id}`);
+        await useService.delete(`${URLMapping.DELETE_CATEGORY}/${id}`);
         loadData();
       },
     });

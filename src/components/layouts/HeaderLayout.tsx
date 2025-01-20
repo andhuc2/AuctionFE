@@ -15,12 +15,13 @@ import {
 } from "@ant-design/icons";
 import { Layout, Menu, Breadcrumb, theme, Button, Space, Dropdown } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
-import Spinner from "./Spinner";
-import DynamicBreadcrumb from "./DynamicBreadcrumb";
-import PermissionMapping from "../utils/PermissionMapping";
-import usePermissions from "../hooks/usePermissions";
+import useAuth from "../../hooks/useAuth";
+import Spinner from "../Spinner";
+import DynamicBreadcrumb from "../DynamicBreadcrumb";
+import PermissionMapping from "../../utils/PermissionMapping";
+import usePermissions from "../../hooks/usePermissions";
 import { JSX } from "react/jsx-runtime";
+import { Constant } from "../../utils/Constant";
 
 const { Header, Content, Footer } = Layout;
 
@@ -47,7 +48,6 @@ const HeaderLayout: React.FC<{ children: React.ReactNode }> = ({
   const { logout, isAuthenticated, isAdmin } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const LOGO_URL = (import.meta.env.VITE_LOGO_URL as string) || "/logo.svg";
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -85,7 +85,7 @@ const HeaderLayout: React.FC<{ children: React.ReactNode }> = ({
         <div style={{ display: "flex" }}>
           <Link to="/home">
             <img
-              src={LOGO_URL}
+              src={Constant.ASSET.LOGO_URL}
               alt="Logo"
               style={{
                 width: "35px",

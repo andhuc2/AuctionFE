@@ -19,8 +19,8 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import SidebarLayout from "../components/SidebarLayout";
-import BaseService from "../services/BaseService";
+import SidebarLayout from "../components/layouts/SidebarLayout";
+import useService from "../hooks/useService";
 import URLMapping from "../utils/URLMapping";
 
 interface User {
@@ -50,7 +50,7 @@ const Users: React.FC = () => {
 
   const loadData = async () => {
     try {
-      const response = await BaseService.get(
+      const response = await useService.get(
         `${URLMapping.GET_USER}?page=${currentPage}&size=${pageSize}&search=${searchText}`,
         false
       );
@@ -69,7 +69,7 @@ const Users: React.FC = () => {
 
   const handleUpdate = async () => {
     const updatedUser = { ...editingUser, ...form.getFieldsValue() };
-    const response = await BaseService.put(URLMapping.UPDATE_USER, updatedUser);
+    const response = await useService.put(URLMapping.UPDATE_USER, updatedUser);
     if (response && response.success) {
       setIsEditModalVisible(false);
       loadData();
@@ -83,7 +83,7 @@ const Users: React.FC = () => {
       okText: "Yes, Delete",
       cancelText: "Cancel",
       onOk: async () => {
-        await BaseService.delete(URLMapping.DELETE_USER + `/${id}`);
+        await useService.delete(URLMapping.DELETE_USER + `/${id}`);
         loadData();
       },
     });

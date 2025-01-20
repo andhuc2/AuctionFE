@@ -1,4 +1,4 @@
-export const Messages = {
+export const Constant = {
   SUCCESS: {
     SUCCESS: "Success!",
     DATA_FETCHED: "Get data successfully!",
@@ -16,4 +16,7 @@ export const Messages = {
     NOT_FOUND: "Not found.",
     TIMEOUT: "Disconnected from the server.",
   },
+  ASSET: {
+    LOGO_URL: import.meta.env.VITE_LOGO_URL || "/logo.svg"
+  }
 };

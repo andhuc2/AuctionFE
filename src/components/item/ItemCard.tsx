@@ -13,7 +13,7 @@ dayjs.extend(isBetween);
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
 import { useNavigate } from "react-router-dom";
-import BaseService from "../../services/BaseService";
+import useService from "../../hooks/useService";
 import URLMapping from "../../utils/URLMapping";
 import { get } from "lodash";
 
@@ -53,7 +53,7 @@ const ItemCard: React.FC<ItemCardProps & { [key: string]: any }> = ({
       okType: "danger",
       cancelText: "No",
       onOk: async () => {
-        const response = await BaseService.delete(
+        const response = await useService.delete(
           URLMapping.DELETE_ITEM + `/${id}`
         );
         if (response && response.success) {

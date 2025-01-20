@@ -1,15 +1,15 @@
 import React, { useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import SidebarLayout from "../components/SidebarLayout";
+import SidebarLayout from "../components/layouts/SidebarLayout";
 import { Button, Col, Input, Row, Select } from "antd";
 import ItemCard from "../components/item/ItemCard";
 import URLMapping, { API_URL } from "../utils/URLMapping";
-import BaseService from "../services/BaseService";
+import useService from "../hooks/useService";
 import { useLoading } from "../hooks/useLoading";
 import { set } from "lodash";
 import Search, { SearchProps } from "antd/es/input/Search";
-import HeaderLayout from "../components/HeaderLayout";
+import HeaderLayout from "../components/layouts/HeaderLayout";
 
 const Home: React.FC = () => {
   const { logout } = useAuth();
@@ -32,7 +32,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     (async () => {
       showLoading();
-      const categoryData = await BaseService.get(
+      const categoryData = await useService.get(
         URLMapping.GET_ALL_CATEGORY,
         false
       );
@@ -48,7 +48,7 @@ const Home: React.FC = () => {
     const queryParams = `page=${currentPage}&size=${pageSize}&search=${search}&categoryId=${
       selectedCategory !== 0 ? selectedCategory : ""
     }`;
-    const itemData = await BaseService.get(
+    const itemData = await useService.get(
       `${URLMapping.GET_ITEMS_HOME}?${queryParams}`,
       false
     );

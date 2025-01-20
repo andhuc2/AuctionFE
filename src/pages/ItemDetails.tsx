@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import HeaderLayout from "../components/HeaderLayout";
+import HeaderLayout from "../components/layouts/HeaderLayout";
 import {
   Button,
   Col,
@@ -19,14 +19,14 @@ import {
   Tag,
 } from "antd";
 import URLMapping, { API_URL } from "../utils/URLMapping";
-import BaseService from "../services/BaseService";
+import useService from "../hooks/useService";
 import { useLoading } from "../hooks/useLoading";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
 import { DollarOutlined, StarOutlined } from "@ant-design/icons";
 import useAuth from "../hooks/useAuth";
-import { Messages } from "../utils/Constant";
+import { Constant } from "../utils/Constant";
 
 const { Title, Text } = Typography;
 
@@ -53,7 +53,7 @@ const ItemDetails: React.FC = () => {
 
   const loadData = async () => {
     showLoading();
-    const response = await BaseService.get(
+    const response = await useService.get(
       URLMapping.GET_ITEMS + `/${id}`,
       false
     );
@@ -76,7 +76,7 @@ const ItemDetails: React.FC = () => {
       return;
     }
     showLoading();
-    const response = await BaseService.post(URLMapping.POST_BID, {
+    const response = await useService.post(URLMapping.POST_BID, {
       itemId: id,
       bidAmount: bidAmount,
     });
@@ -103,14 +103,14 @@ const ItemDetails: React.FC = () => {
     }
 
     showLoading();
-    const response = await BaseService.post(URLMapping.POST_RATING, {
+    const response = await useService.post(URLMapping.POST_RATING, {
       rateeId: currentBidderId,
       itemId: item.id,
       ratingValue: ratingValue,
     });
     if (response && !response.success) {
       notification.error({
-        message: Messages.ERROR.FAIL,
+        message: Constant.ERROR.FAIL,
         description: response.message,
       });
     }
@@ -121,7 +121,7 @@ const ItemDetails: React.FC = () => {
 
   const loadRating = async (userId: number) => {
     showLoading();
-    const response = await BaseService.get(
+    const response = await useService.get(
       URLMapping.GET_RATING + `/${userId}/${item.id}`,
       false
     );

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import BaseService from "../services/BaseService";
+import useService from "./useService";
 import URLMapping from "../utils/URLMapping";
 import PermissionMapping from "../utils/PermissionMapping";
 

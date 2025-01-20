@@ -9,16 +9,15 @@ import {
   notification,
 } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import BaseService from "../services/BaseService";
+import useService from "../hooks/useService";
 import URLMapping from "../utils/URLMapping";
-import { Messages } from "../utils/Constant";
+import { Constant } from "../utils/Constant";
 
 const { Title, Paragraph } = Typography;
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const LOGO_URL = import.meta.env.VITE_LOGO_URL || "/logo.svg";
 
   const onFinish = async (values: { email: string; password: string; confirmPassword: string }) => {
     setLoading(true);
@@ -33,7 +32,7 @@ const Register: React.FC = () => {
       return;
     }
 
-    const response = await BaseService.post(
+    const response = await useService.post(
       URLMapping.REGISTER,
       {
         email: values.email,
@@ -47,7 +46,7 @@ const Register: React.FC = () => {
     } else {
       notification.error({
         message: "Error",
-        description: response?.message || Messages.ERROR.FAIL,
+        description: response?.message || Constant.ERROR.FAIL,
       });
     }
     setLoading(false);
@@ -79,7 +78,7 @@ const Register: React.FC = () => {
         <div style={{ textAlign: "center", marginBottom: "24px" }}>
           <Image
             width={"20%"}
-            src={LOGO_URL}
+            src={Constant.ASSET.LOGO_URL}
             alt="Logo"
             preview={false}
             style={{}}

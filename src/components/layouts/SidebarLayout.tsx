@@ -15,11 +15,12 @@ import {
 } from "@ant-design/icons";
 import { Layout, Menu, Breadcrumb, theme, Button, Space, Dropdown } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
-import Spinner from "./Spinner";
-import DynamicBreadcrumb from "./DynamicBreadcrumb";
-import PermissionMapping from "../utils/PermissionMapping";
-import usePermissions from "../hooks/usePermissions";
+import useAuth from "../../hooks/useAuth";
+import Spinner from "../Spinner";
+import DynamicBreadcrumb from "../DynamicBreadcrumb";
+import PermissionMapping from "../../utils/PermissionMapping";
+import usePermissions from "../../hooks/usePermissions";
+import { Constant } from "../../utils/Constant";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -42,7 +43,6 @@ const SidebarLayout: React.FC<{ children: React.ReactNode }> = ({
   const [collapsed, setCollapsed] = useState(
     localStorage.getItem("collapsed") === "true"
   );
-  const LOGO_URL = (import.meta.env.VITE_LOGO_URL as string) || "/logo.svg";
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -79,7 +79,7 @@ const SidebarLayout: React.FC<{ children: React.ReactNode }> = ({
         <div style={{ padding: "16px", textAlign: "center" }}>
           <Link to="/home">
             <img
-              src={LOGO_URL}
+              src={Constant.ASSET.LOGO_URL}
               style={{ maxWidth: collapsed ? "70%" : "30%", height: "auto" }}
             />
           </Link>

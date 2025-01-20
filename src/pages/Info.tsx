@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import SidebarLayout from "../components/SidebarLayout";
+import SidebarLayout from "../components/layouts/SidebarLayout";
 import {
   Button,
   Card,
@@ -18,9 +18,9 @@ import {
   Tag,
 } from "antd";
 import { AlertOutlined, UserOutlined } from "@ant-design/icons";
-import BaseService from "../services/BaseService";
+import useService from "../hooks/useService";
 import URLMapping, { API_URL } from "../utils/URLMapping";
-import { Messages } from "../utils/Constant";
+import { Constant } from "../utils/Constant";
 import { useLoading } from "../hooks/useLoading";
 import ItemCard from "../components/item/ItemCard";
 
@@ -48,7 +48,7 @@ const Info: React.FC = () => {
 
   const loadData = async () => {
     showLoading();
-    const userData = await BaseService.get(
+    const userData = await useService.get(
       URLMapping.PROFILE_USER + `/${id}`,
       false
     );
@@ -63,7 +63,7 @@ const Info: React.FC = () => {
       const values = await form.validateFields();
       const reason = values.reason;
 
-      const response = await BaseService.post(URLMapping.ADD_REPORT, {
+      const response = await useService.post(URLMapping.ADD_REPORT, {
         userId: id,
         content: reason,
       });
@@ -77,13 +77,13 @@ const Info: React.FC = () => {
       } else {
         notification.error({
           message: "Error",
-          description: response?.message || Messages.ERROR.FAIL,
+          description: response?.message || Constant.ERROR.FAIL,
         });
       }
     } catch (error) {
       notification.error({
         message: "Error",
-        description: Messages.ERROR.FAIL,
+        description: Constant.ERROR.FAIL,
       });
     }
   };
