@@ -10,7 +10,11 @@ import {
   notification,
   Select,
 } from "antd";
-import { EditOutlined, DeleteOutlined, ReloadOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
 import useService from "../hooks/useService";
 import URLMapping from "../utils/URLMapping";
 import SidebarLayout from "../components/layouts/SidebarLayout";
@@ -57,7 +61,10 @@ const Categories: React.FC = () => {
 
   const handleUpdate = async () => {
     const updatedCategory = { ...editingCategory, ...form.getFieldsValue() };
-    const response = await useService.put(URLMapping.UPDATE_CATEGORY, updatedCategory);
+    const response = await useService.put(
+      URLMapping.UPDATE_CATEGORY,
+      updatedCategory
+    );
     if (response && response.success) {
       setIsEditModalVisible(false);
       loadData();
@@ -67,7 +74,8 @@ const Categories: React.FC = () => {
   const handleDelete = async (id: number) => {
     Modal.confirm({
       title: "Are you sure you want to delete this category?",
-      content: "This action will soft delete the category (set CreatedAt to null).",
+      content:
+        "This action will soft delete the category (set CreatedAt to null).",
       okText: "Yes, Delete",
       cancelText: "Cancel",
       onOk: async () => {
@@ -80,20 +88,22 @@ const Categories: React.FC = () => {
   const columns = [
     { title: "ID", dataIndex: "id", key: "id" },
     { title: "Category Name", dataIndex: "categoryName", key: "categoryName" },
-    {
-      title: "Parent Category",
-      dataIndex: "parentCategoryId",
-      key: "parentCategoryId",
-      render: (parentCategoryId: number | null) => (
-        <Tag color="blue">{parentCategoryId === null ? "None" : parentCategoryId}</Tag>
-      ),
-    },
+    // {
+    //   title: "Parent Category",
+    //   dataIndex: "parentCategoryId",
+    //   key: "parentCategoryId",
+    //   render: (parentCategoryId: number | null) => (
+    //     <Tag color="blue">{parentCategoryId === null ? "None" : parentCategoryId}</Tag>
+    //   ),
+    // },
     {
       title: "Status",
       dataIndex: "createdAt",
       key: "createdAt",
       render: (createdAt: string | null) => (
-        <Tag color={createdAt ? "blue" : "red"}>{createdAt ? "ACTIVE" : "DELETED"}</Tag>
+        <Tag color={createdAt ? "blue" : "red"}>
+          {createdAt ? "ACTIVE" : "DELETED"}
+        </Tag>
       ),
     },
     {
@@ -157,16 +167,6 @@ const Categories: React.FC = () => {
             rules={[{ required: true }]}
           >
             <Input />
-          </Form.Item>
-          <Form.Item
-            name="parentCategoryId"
-            label="Parent Category"
-            rules={[{ required: false }]}
-          >
-            <Select>
-              <Select.Option value={null}>None</Select.Option>
-              {/* Populate parent categories dynamically if needed */}
-            </Select>
           </Form.Item>
         </Form>
       </Modal>

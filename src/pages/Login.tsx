@@ -34,10 +34,10 @@ const Login: React.FC = () => {
       login(response.data);
       navigate("/home");
     } else {
-      notification.error({
-        message: "Error",
-        description: response?.message || Constant.ERROR.UNAUTHENTICATED,
-      });
+      // notification.error({
+      //   message: "Error",
+      //   description: response?.message || Constant.ERROR.UNAUTHENTICATED,
+      // });
     }
     setLoading(false);
   };

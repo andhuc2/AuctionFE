@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import SidebarLayout from "../components/layouts/SidebarLayout";
 import {
   Button,
   Card,
@@ -23,6 +22,7 @@ import URLMapping, { API_URL } from "../utils/URLMapping";
 import { Constant } from "../utils/Constant";
 import { useLoading } from "../hooks/useLoading";
 import ItemCard from "../components/item/ItemCard";
+import HeaderLayout from "../components/layouts/HeaderLayout";
 
 const { Title, Text } = Typography;
 
@@ -66,7 +66,7 @@ const Info: React.FC = () => {
       const response = await useService.post(URLMapping.ADD_REPORT, {
         userId: id,
         content: reason,
-      });
+      }, false);
 
       if (response && response.success) {
         form.resetFields();
@@ -89,7 +89,7 @@ const Info: React.FC = () => {
   };
 
   return (
-    <SidebarLayout>
+    <HeaderLayout>
       {/* User Profile Section */}
       <Card
         style={{
@@ -240,7 +240,7 @@ const Info: React.FC = () => {
           rowKey={(record) => record.id}
         />
       </Card>
-    </SidebarLayout>
+    </HeaderLayout>
   );
 };
 

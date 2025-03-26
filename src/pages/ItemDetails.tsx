@@ -27,6 +27,7 @@ dayjs.extend(utc);
 import { DollarOutlined, StarOutlined } from "@ant-design/icons";
 import useAuth from "../hooks/useAuth";
 import { Constant } from "../utils/Constant";
+import useSignalR from "../hooks/userSignalR";
 
 const { Title, Text } = Typography;
 
@@ -42,6 +43,7 @@ const ItemDetails: React.FC = () => {
   const [ratingValue, setRatingValue] = useState<number>(0);
   const [currentBidderId, setCurrentBidderId] = useState<number>(0);
   const navigate = useNavigate();
+  const connection = useSignalR("/signalR/itemHub");
 
   useEffect(() => {
     if (!id) {
@@ -50,6 +52,34 @@ const ItemDetails: React.FC = () => {
     }
     loadData();
   }, [id]);
+
+  useEffect(() => {
+    connectSignalR();
+  }, [connection]);
+
+  const connectSignalR = async () => {
+    if (!connection) return;
+
+    connection
+      .start()
+      .then(() => {
+        // console.log("Connected to SignalR");
+        connection.invoke("ListenItem", id);
+      })
+      .catch((err) => console.error("Connection failed:", err));
+
+    connection.on("ItemUpdate", (message) => {
+      console.log(message);
+      if (getUserId() != message) {
+        loadData();
+      }
+    });
+
+    return () => {
+      connection.invoke("LeaveGroup", id);
+      connection.stop();
+    };
+  };
 
   const loadData = async () => {
     showLoading();
@@ -85,10 +115,10 @@ const ItemDetails: React.FC = () => {
       setBiddingFormState(true);
       await loadData();
     } else {
-      notification.error({
-        message: "Failed to place bid",
-        description: response?.message || "Please try again later.",
-      });
+      // notification.error({
+      //   message: "Failed to place bid",
+      //   description: response?.message || "Please try again later.",
+      // });
     }
     hideLoading();
   };
@@ -229,8 +259,15 @@ const ItemDetails: React.FC = () => {
               </Descriptions.Item>
               <Descriptions.Item label="Bid Timeframe">
                 <Text strong>
-                  {dayjs.utc(item?.bidStartDate).local().format("HH:mm DD/MM/YYYY")} -{" "}
-                  {dayjs.utc(item?.bidEndDate).local().format("HH:mm DD/MM/YYYY")}
+                  {dayjs
+                    .utc(item?.bidStartDate)
+                    .local()
+                    .format("HH:mm DD/MM/YYYY")}{" "}
+                  -{" "}
+                  {dayjs
+                    .utc(item?.bidEndDate)
+                    .local()
+                    .format("HH:mm DD/MM/YYYY")}
                 </Text>
               </Descriptions.Item>
               {item?.documentPath && (
@@ -271,7 +308,9 @@ const ItemDetails: React.FC = () => {
                   title: "Bidder",
                   dataIndex: "bidder",
                   key: "bidder",
-                  render: (bidder) => <Link to={`/info/${bidder.id}`}>{bidder.fullName}</Link>,
+                  render: (bidder) => (
+                    <Link to={`/info/${bidder.id}`}>{bidder.fullName}</Link>
+                  ),
                 },
                 {
                   title: "Amount",
@@ -323,7 +362,11 @@ const ItemDetails: React.FC = () => {
         okText="Submit"
         cancelText="Cancel"
       >
-        <Space direction="vertical" size="middle" style={{ textAlign: "center" }}>
+        <Space
+          direction="vertical"
+          size="middle"
+          style={{ textAlign: "center" }}
+        >
           <Text strong style={{ fontSize: 16 }}>
             Rate this bidder:
           </Text>

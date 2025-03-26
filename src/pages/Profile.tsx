@@ -57,6 +57,12 @@ const Profile: React.FC = () => {
 
   useEffect(() => {
     (async () => {
+      if (window.location.search.includes("successP"))
+        notification.success({
+          message: "Recharge Successful",
+          description: "Your credits have been recharged successfully.",
+        });
+
       showLoading();
       const categoryData = await useService.get(
         URLMapping.GET_ALL_CATEGORY,
