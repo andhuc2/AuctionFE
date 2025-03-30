@@ -14,6 +14,7 @@ import ItemDetails from "./pages/ItemDetails";
 import Categories from "./pages/Categories";
 import Verify from "./pages/Verify";
 import Info from "./pages/Info";
+import Dashboard from "./pages/Dashboard";
 
 // Define the route configuration
 const routeConfig = [
@@ -75,6 +76,11 @@ const routeConfig = [
   {
     path: "/categories",
     element: <Categories />,
+    protected: true,
+  },
+  {
+    path: "/dashboard",
+    element: <Dashboard />,
     protected: true,
   }
 ];

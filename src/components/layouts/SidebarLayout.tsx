@@ -12,6 +12,7 @@ import {
   StarOutlined,
   LoginOutlined,
   AppstoreOutlined,
+  DashboardOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Breadcrumb, theme, Button, Space, Dropdown } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -21,18 +22,17 @@ import DynamicBreadcrumb from "../DynamicBreadcrumb";
 import PermissionMapping from "../../utils/PermissionMapping";
 import usePermissions from "../../hooks/usePermissions";
 import { Constant } from "../../utils/Constant";
+import { JSX } from "react/jsx-runtime";
 
 const { Header, Content, Footer, Sider } = Layout;
 
-const menuItems = [
-  {
-    label: "Home",
-    key: "home",
-    icon: <HomeOutlined />,
-    path: "/home",
-    permission: PermissionMapping.NONE,
-  }
-];
+const menuItems: {
+  label: string;
+  key: string;
+  icon: JSX.Element;
+  path: string;
+  permission: string;
+}[] = [];
 
 const SidebarLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -48,23 +48,32 @@ const SidebarLayout: React.FC<{ children: React.ReactNode }> = ({
   } = theme.useToken();
   const navigate = useNavigate();
 
-  if (isAdmin() && !menuItems.some(item => item.key === "users")) {
+  if (isAdmin() && !menuItems.some((item) => item.key === "dashboard")) {
+    menuItems.push({
+      label: "Dashboard",
+      key: "dashboard",
+      icon: <DashboardOutlined />,
+      path: "/dashboard",
+      permission: PermissionMapping.VIEW_USER,
+    });
+  }
+  if (isAdmin() && !menuItems.some((item) => item.key === "users")) {
     menuItems.push({
       label: "Users",
       key: "users",
       icon: <UserOutlined />,
       path: "/users",
       permission: PermissionMapping.VIEW_USER,
-    })
+    });
   }
-  if (isAdmin() && !menuItems.some(item => item.key === "categories")) {
+  if (isAdmin() && !menuItems.some((item) => item.key === "categories")) {
     menuItems.push({
       label: "Categories",
       key: "categories",
       icon: <AppstoreOutlined />,
       path: "/categories",
       permission: PermissionMapping.VIEW_USER,
-    })
+    });
   }
 
   return (
@@ -197,7 +206,7 @@ const SidebarLayout: React.FC<{ children: React.ReactNode }> = ({
             </Dropdown>
             <Button
               type="text"
-              icon={isAuthenticated ? <LogoutOutlined /> : <LoginOutlined  />}
+              icon={isAuthenticated ? <LogoutOutlined /> : <LoginOutlined />}
               onClick={logout}
               style={{
                 fontSize: "16px",

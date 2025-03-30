@@ -12,6 +12,7 @@ import {
   StarOutlined,
   LoginOutlined,
   AppstoreOutlined,
+  DashboardOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Breadcrumb, theme, Button, Space, Dropdown } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -52,6 +53,15 @@ const HeaderLayout: React.FC<{ children: React.ReactNode }> = ({
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+  if (isAdmin() && !menuItems.some(item => item.key === "dashboard")) {
+    menuItems.push({
+      label: "Dashboard",
+      key: "dashboard",
+      icon: <DashboardOutlined />,
+      path: "/dashboard",
+      permission: PermissionMapping.VIEW_USER,
+    })
+  }
   if (isAdmin() && !menuItems.some(item => item.key === "users")) {
     menuItems.push({
       label: "Users",

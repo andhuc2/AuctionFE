@@ -317,12 +317,15 @@ const ItemDetails: React.FC = () => {
                   dataIndex: "bidAmount",
                   key: "amount",
                   render: (bidAmount) => `$${bidAmount.toFixed(2)}`,
+                  sorter: (a, b) => a.bidAmount - b.bidAmount,
+                  defaultSortOrder: "descend",
                 },
                 {
                   title: "Time",
                   dataIndex: "bidDate",
                   key: "time",
                   render: (time) => new Date(time).toLocaleString(),
+                  sorter: (a, b) => new Date(a.bidDate).getTime() - new Date(b.bidDate).getTime(),
                 },
                 ...(getUserId() === item?.sellerId
                   ? [

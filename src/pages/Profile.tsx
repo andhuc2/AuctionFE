@@ -265,7 +265,7 @@ const Profile: React.FC = () => {
                 type="primary"
                 icon={<PlusOutlined />}
                 onClick={() => {
-                  if (user.credit / 1000 < 5) {
+                  if (user.credit / 2000 < 5) {
                     notification.error({
                       message: "Insufficient Credits",
                       description:

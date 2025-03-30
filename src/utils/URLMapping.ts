@@ -32,6 +32,8 @@ const URLMapping = {
     PAYMENT_PAY: '/api/Payment/pay',
 
     ADD_REPORT: '/api/Report',
+
+    ADMIN_DASHBOARD: '/api/Admin/dashboard',
 };
 
 export default URLMapping;

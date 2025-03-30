@@ -24,10 +24,13 @@ const Home: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = React.useState<
     number | string
   >("0");
+  const [selectedStatus, setSelectedStatus] = React.useState<number | string>(
+    "0"
+  );
 
   useEffect(() => {
     loadData();
-  }, [currentPage, selectedCategory]);
+  }, [currentPage, selectedCategory, selectedStatus]);
 
   useEffect(() => {
     (async () => {
@@ -47,7 +50,7 @@ const Home: React.FC = () => {
     showLoading();
     const queryParams = `page=${currentPage}&size=${pageSize}&search=${search}&categoryId=${
       selectedCategory !== 0 ? selectedCategory : ""
-    }`;
+    }&status=${selectedStatus !== 0 ? selectedStatus : ""}`;
     const itemData = await useService.get(
       `${URLMapping.GET_ITEMS_HOME}?${queryParams}`,
       false
@@ -82,14 +85,21 @@ const Home: React.FC = () => {
     setItems([]);
   };
 
+  const handleStatusChange = (value: number | string) => {
+    setSelectedStatus(value);
+    setCurrentPage(1);
+    setItems([]);
+  };
+
   return (
     <HeaderLayout>
       <Row justify="space-between" align="middle">
         <Col>
           <h1>Home</h1>
         </Col>
-        <Col style={{ display: 'flex' }}>
-          <Search style={{ marginRight: "1rem" }}
+        <Col style={{ display: "flex" }}>
+          <Search
+            style={{ marginRight: "1rem" }}
             placeholder="Input search text"
             onSearch={handleSearch}
             enterButton
@@ -97,7 +107,7 @@ const Home: React.FC = () => {
             value={search}
           />
           <Select
-            style={{ width: 120 }}
+            style={{ width: 160 }}
             onChange={handleCategoryChange}
             value={selectedCategory}
           >
@@ -109,6 +119,24 @@ const Home: React.FC = () => {
                 {category.categoryName}
               </Select.Option>
             ))}
+          </Select>
+          <Select
+            style={{ width: 180, marginLeft: 10 }}
+            onChange={handleStatusChange}
+            value={selectedStatus}
+          >
+            <Select.Option key="0" value="0">
+              All
+            </Select.Option>
+            <Select.Option key="ended" value="ended">
+              Ended
+            </Select.Option>
+            <Select.Option key="happening" value="happening">
+              Happening
+            </Select.Option>
+            <Select.Option key="soon" value="soon">
+              Upcoming
+            </Select.Option>
           </Select>
         </Col>
       </Row>
