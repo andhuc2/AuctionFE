@@ -14,6 +14,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   ReloadOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 import useService from "../hooks/useService";
 import URLMapping from "../utils/URLMapping";
@@ -140,6 +141,7 @@ const Categories: React.FC = () => {
         onClick={() => loadData()}
         style={{ marginBottom: 16, marginLeft: "1rem" }}
       ></Button>
+      <Button type="primary" style={{ marginLeft: 8 }} icon={<PlusOutlined />}>Add Category</Button>
       <Table
         columns={columns}
         dataSource={categories}

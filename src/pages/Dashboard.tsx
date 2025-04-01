@@ -10,6 +10,8 @@ import {
   Typography,
   Divider,
   message,
+  notification,
+  Space,
 } from "antd";
 import {
   DollarCircleOutlined,
@@ -21,6 +23,7 @@ import useService from "../hooks/useService";
 import { useLoading } from "../hooks/useLoading";
 import SidebarLayout from "../components/layouts/SidebarLayout";
 import URLMapping from "../utils/URLMapping";
+import { Constant } from "../utils/Constant";
 
 const { Text } = Typography;
 
@@ -41,11 +44,20 @@ const Dashboard: React.FC = () => {
       );
       setData(response.data);
     } catch (error) {
-      message.error("Failed to load dashboard data");
+      notification.error({
+        message: "Error",
+        description: Constant.ERROR.RESPONSE,
+      });
     } finally {
       hideLoading();
     }
   };
+
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(value);
 
   const statusColors: Record<string, string> = {
     pending: "gold",
@@ -91,8 +103,8 @@ const Dashboard: React.FC = () => {
         <>
           <Divider />
           <Row gutter={[16, 16]}>
-            <Col span={6}>
-              <Card>
+            <Col span={4} style={{ display: "flex" }}>
+              <Card style={{ height: "100%", width: "100%" }}>
                 <Statistic
                   title="Total Exchanges"
                   value={data.totalExchange}
@@ -100,18 +112,18 @@ const Dashboard: React.FC = () => {
                 />
               </Card>
             </Col>
-            <Col span={6}>
-              <Card>
+            <Col span={4} style={{ display: "flex" }}>
+              <Card style={{ height: "100%", width: "100%" }}>
                 <Statistic
-                  title="Total Exchange Amount"
+                  title="Total Amount"
                   value={data.totalExchangeAmount.toFixed(2)}
                   prefix={<DollarCircleOutlined />}
                   suffix="$"
                 />
               </Card>
             </Col>
-            <Col span={6}>
-              <Card>
+            <Col span={4} style={{ display: "flex" }}>
+              <Card style={{ height: "100%", width: "100%" }}>
                 <Statistic
                   title="Total Bids"
                   value={data.totalBid}
@@ -119,13 +131,29 @@ const Dashboard: React.FC = () => {
                 />
               </Card>
             </Col>
-            <Col span={6}>
-              <Card>
+            <Col span={4} style={{ display: "flex" }}>
+              <Card style={{ height: "100%", width: "100%" }}>
                 <Statistic
                   title="Total Items"
                   value={data.totalItems}
                   prefix={<AppstoreOutlined />}
                 />
+              </Card>
+            </Col>
+            <Col span={8} style={{ display: "flex" }}>
+              <Card style={{ height: "100%", width: "100%" }}>
+                <Space direction="vertical" size="small">
+                  <Statistic
+                    title="Total Revenue"
+                    value={data.totalBidRevenue + data.totalSellRevenue}
+                    prefix={<DollarCircleOutlined />}
+                    suffix="$"
+                  />
+                  <Typography.Text type="secondary">
+                    {data.totalBidRevenue}$ (Bids) + {data.totalSellRevenue}$
+                    (Sells)
+                  </Typography.Text>
+                </Space>
               </Card>
             </Col>
           </Row>

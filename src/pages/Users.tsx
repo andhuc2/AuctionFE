@@ -17,6 +17,7 @@ import {
   InfoCircleOutlined,
   ReloadOutlined,
   DeleteOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import SidebarLayout from "../components/layouts/SidebarLayout";
@@ -149,6 +150,7 @@ const Users: React.FC = () => {
         onClick={() => loadData()}
         style={{ marginBottom: 16, marginLeft: "1rem" }}
       ></Button>
+      <Button type="primary" style={{ marginLeft: 8 }} icon={<PlusOutlined />}>Add User</Button>
       <Table
         columns={columns}
         dataSource={users}

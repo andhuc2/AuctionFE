@@ -10,6 +10,7 @@ import { useLoading } from "../hooks/useLoading";
 import { set } from "lodash";
 import Search, { SearchProps } from "antd/es/input/Search";
 import HeaderLayout from "../components/layouts/HeaderLayout";
+import { ReloadOutlined } from "@ant-design/icons";
 
 const Home: React.FC = () => {
   const { logout } = useAuth();
@@ -45,6 +46,11 @@ const Home: React.FC = () => {
     setCurrentPage(1);
   }, []);
 
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [currentPage, totalPage]);
+
   const loadData = async () => {
     if (currentPage > totalPage) return;
     showLoading();
@@ -63,11 +69,10 @@ const Home: React.FC = () => {
     hideLoading();
   };
 
-  const handleScroll = (e: React.UIEvent<HTMLElement>) => {
+  const handleScroll = () => {
     const bottom =
-      (e.target as HTMLElement).scrollHeight ===
-      (e.target as HTMLElement).scrollTop +
-        (e.target as HTMLElement).clientHeight;
+      window.innerHeight + window.scrollY >=
+      document.documentElement.scrollHeight;
     if (bottom && currentPage < totalPage) {
       setCurrentPage((prevPage) => prevPage + 1);
     }
@@ -141,11 +146,7 @@ const Home: React.FC = () => {
         </Col>
       </Row>
 
-      <Row
-        gutter={[32, 32]}
-        style={{ paddingTop: "2rem" }}
-        onScroll={handleScroll}
-      >
+      <Row gutter={[32, 32]} style={{ paddingTop: "2rem" }}>
         {items.map((item: any) => (
           <Col xs={24} sm={12} md={6} lg={4} key={item.id}>
             <ItemCard
@@ -160,6 +161,16 @@ const Home: React.FC = () => {
             />
           </Col>
         ))}
+      </Row>
+      <Row style={{ width: "100%", alignItems: "center", justifyContent: "center" }}>
+        {currentPage < totalPage && (
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={() => setCurrentPage((prevPage) => prevPage + 1)}
+          >
+            Load More
+          </Button>
+        )}
       </Row>
     </HeaderLayout>
   );
